@@ -7,21 +7,17 @@ import (
 	"strconv"
 )
 
-/*
-This pacakge generates goroxyconfig.json template file.
-and also reads and parses the file.
-*/
-
+// Config is proxy server configuration.
 type Config struct {
 	Port   int    `json:"port,omitempty"`
 	Target string `json:"target,omitempty"`
 }
 
-// ReadConfig takes command line arguments to reads and set the configuration.
+// ReadConfig takes command line arguments to read and set the configuration.
 // After parsing, it returns the configuration.
 // If no arguments are passed, it reads the default config file.
 // If there is no config file, it generates the config template file.
-// "args" must not include the program name.
+// "args" must exclude the program name.
 func ReadConfig(args []string) (*Config, error) {
 	var err error
 	conf := &Config{
@@ -59,9 +55,8 @@ func ReadConfig(args []string) (*Config, error) {
 	return conf, nil
 }
 
-// ReadOrGenConfFile handles the case where required arguments are not passed.
-// It first tries reading the default config file.
-// If the file doesn't exist, it generates the config template file.
+// ReadOrGenConfFile handles the case where any of required arguments are not passed.
+// It first tries reading the default config file. If the file doesn't exist, it generates the config template file.
 func ReadOrGenConfFile(cf *Config) (*Config, error) {
 	// first read the default config file.
 	confB, err := os.ReadFile("goroxyconfig.json")
