@@ -1,2 +1,2 @@
 # Goroxy
-Simple proxy server to connect local frontend and remote web server (especially development server) .
+Simple proxy server which connects between local frontend and remote web server (especially development server) .
