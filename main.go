@@ -2,6 +2,7 @@ package main
 
 import (
 	"goroxy/config"
+	"goroxy/proxy"
 	"log"
 	"os"
 )
@@ -12,5 +13,9 @@ func main() {
 		log.Println(err)
 		return
 	}
-	log.Println(conf)
+	err = proxy.Start(*conf)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 }
