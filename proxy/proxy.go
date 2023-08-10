@@ -1,6 +1,6 @@
 package proxy
 
-import "goroxy/config"
+import "froxy/config"
 
 /*
 This package implements the proxy server.

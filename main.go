@@ -1,8 +1,8 @@
 package main
 
 import (
-	"goroxy/config"
-	"goroxy/proxy"
+	"froxy/config"
+	"froxy/proxy"
 	"log"
 	"os"
 )
