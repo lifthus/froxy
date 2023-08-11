@@ -54,7 +54,7 @@ func ReadConfig(args []string) (*Config, error) {
 		}
 		return nil, fmt.Errorf("invalid argument %s", args[i])
 	}
-	if argnum != 2 {
+	if argnum != 2 && argnum != 0 {
 		return nil, fmt.Errorf("invalid number of arguments")
 	}
 	// if no arguments are passsed, read the default config file.
