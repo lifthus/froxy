@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"froxy/config"
 	"froxy/proxy"
 	"log"
@@ -13,9 +14,17 @@ func main() {
 		log.Println(err)
 		return
 	}
-	err = proxy.Start(*conf)
-	if err != nil {
-		log.Println(err)
-		return
-	}
+	log.Println("configurations set")
+
+	go func() {
+		err = proxy.Start(*conf)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}()
+
+	// any input to exit
+	var input string
+	fmt.Scanln(&input)
 }
