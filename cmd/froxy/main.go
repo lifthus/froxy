@@ -33,7 +33,7 @@ func main() {
 func selectProxyMode(target *url.URL, loadBalanceList []*url.URL) (mode string, ph *proxyhandler.ProxyHandler, err error) {
 	switch {
 	case isForwardProxyMode(target, loadBalanceList):
-		log.Println("forward proxy not implemented yet")
+		return "forward proxy", proxyhandler.NewForwardProxy(), nil
 	case isReverseProxyMode(target, loadBalanceList):
 		return "reverse proxy", proxyhandler.NewReverseProxy(target), nil
 	case isLoadBalancerMode(target, loadBalanceList):
