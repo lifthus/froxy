@@ -5,6 +5,8 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"strings"
 )
 
@@ -96,4 +98,22 @@ func copyHeader(dst, src http.Header) {
 			dst.Add(k, v)
 		}
 	}
+}
+
+type SimpleForwardProxy struct{}
+
+func (sfp SimpleForwardProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	target, err := url.Parse(r.URL.Scheme + "://" + r.URL.Host)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	reqb, err := httputil.DumpRequest(r, true)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(string(reqb))
+
+	p := httputil.NewSingleHostReverseProxy(target)
+	p.ServeHTTP(w, r)
 }
