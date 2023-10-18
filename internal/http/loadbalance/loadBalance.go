@@ -60,17 +60,35 @@ func httpRoundRobinloadBalancingReverseProxy(targets []*url.URL) *httputil.Rever
 	return &httputil.ReverseProxy{Director: director}
 }
 
-func joinURLPath(base *url.URL, target *url.URL) (path string, rawPath string) {
-	basePath := base.Path
-	targetPath := target.Path
+func joinURLPath(a, b *url.URL) (path, rawpath string) {
+	if a.RawPath == "" && b.RawPath == "" {
+		return singleJoiningSlash(a.Path, b.Path), ""
+	}
+	// Same as singleJoiningSlash, but uses EscapedPath to determine
+	// whether a slash should be added
+	apath := a.EscapedPath()
+	bpath := b.EscapedPath()
 
-	basePath = strings.TrimSuffix(basePath, "/")
-	basePath += "/"
+	aslash := strings.HasSuffix(apath, "/")
+	bslash := strings.HasPrefix(bpath, "/")
 
-	targetPath = strings.TrimPrefix(targetPath, "/")
+	switch {
+	case aslash && bslash:
+		return a.Path + b.Path[1:], apath + bpath[1:]
+	case !aslash && !bslash:
+		return a.Path + "/" + b.Path, apath + "/" + bpath
+	}
+	return a.Path + b.Path, apath + bpath
+}
 
-	path = basePath + targetPath
-	rawPath = url.QueryEscape(path)
-	return path, rawPath
-
+func singleJoiningSlash(a, b string) string {
+	aslash := strings.HasSuffix(a, "/")
+	bslash := strings.HasPrefix(b, "/")
+	switch {
+	case aslash && bslash:
+		return a + b[1:]
+	case !aslash && !bslash:
+		return a + "/" + b
+	}
+	return a + b
 }
