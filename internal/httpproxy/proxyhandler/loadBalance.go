@@ -1,36 +1,17 @@
-package loadbalance
+package proxyhandler
 
 import (
 	"fmt"
-	"froxy/pkg/helper"
-	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"strings"
 )
 
-func LoadBalanceRoundRobinHTTP(portNum string, listPath string) error {
-	listStr, err := helper.OpenAndReadFile(listPath)
-	if err != nil {
-		return err
-	}
-
-	listStr = strings.Trim(listStr, "\n")
-	targetList := strings.Split(listStr, "\n")
-	urlList, err := helper.ParseStringsToHttpUrls(targetList)
-	if err != nil {
-		return err
-	}
-
-	host := helper.HttpLocalHostFromPort(portNum)
-	proxy := httpRoundRobinloadBalancingReverseProxy(urlList)
-	log.Printf("http round robin load balancer listening on: %s", portNum)
-	logLoadBalanceTargets(urlList)
-	if err := http.ListenAndServe(host, proxy); err != nil {
-		return fmt.Errorf("http round robin load balancer ListenAndServe failed: %v", err)
-	}
-	return nil
+func NewRoundRobinLoadBalancer(targets []*url.URL) *ProxyHandler {
+	logLoadBalanceTargets(targets)
+	p := httpRoundRobinloadBalancingReverseProxy(targets)
+	return &ProxyHandler{p}
 }
 
 func logLoadBalanceTargets(targets []*url.URL) {

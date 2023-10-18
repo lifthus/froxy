@@ -2,10 +2,20 @@ package args
 
 import (
 	"flag"
+	"froxy/pkg/helper"
+	"net/url"
 	"strings"
 )
 
-func InitArgs() (secure bool, port string, target *string, loadBalancList *string) {
+type Args struct {
+	Secure          bool
+	Port            string
+	Target          *url.URL
+	LoadBalanceList []*url.URL
+}
+
+func InitArgsAndTargets() (args *Args, err error) {
+	args = &Args{}
 	secureF := flag.Bool("s", false, "use https")
 	portF := flag.String("p", "8542", "port number")
 	targetF := flag.String("t", "", "proxy target url")
@@ -13,16 +23,39 @@ func InitArgs() (secure bool, port string, target *string, loadBalancList *strin
 
 	flag.Parse()
 
-	secure = *secureF
-	port = *portF
-	if *targetF != "" {
-		target = targetF
+	args.Secure = *secureF
+	args.Port = *portF
+	args.Target, err = parseUrlOrNil(*targetF)
+	if err != nil {
+		return nil, err
 	}
-	if *loadBalanceF != "" {
-		loadBalancList = loadBalanceF
+	args.LoadBalanceList, err = readLoadBalanceListOrNil(*loadBalanceF)
+	if err != nil {
+		return nil, err
 	}
 
-	port = strings.TrimPrefix(port, ":")
+	return args, nil
+}
 
-	return secure, port, target, loadBalancList
+func parseUrlOrNil(urlStr string) (*url.URL, error) {
+	if urlStr == "" {
+		return nil, nil
+	}
+	return helper.ParseStringToUrlDefaultHTTP(urlStr)
+}
+
+func readLoadBalanceListOrNil(path string) ([]*url.URL, error) {
+	if path == "" {
+		return nil, nil
+	}
+
+	listStr, err := helper.OpenAndReadFile(path, 10240)
+	if err != nil {
+		return nil, err
+	}
+
+	listStr = strings.Trim(listStr, "\n")
+	list := strings.Split(listStr, "\n")
+
+	return helper.ParseStringsToUrlsDefaultHTTP(list)
 }

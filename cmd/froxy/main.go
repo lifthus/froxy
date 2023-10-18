@@ -1,44 +1,55 @@
 package main
 
 import (
+	"fmt"
 	"froxy/init/args"
-	"froxy/internal/http/loadbalance"
-	"froxy/internal/http/reverse"
+	"froxy/internal/httpproxy"
+	"froxy/internal/httpproxy/proxyhandler"
 	"log"
+	"net/url"
 )
 
 func main() {
-	var err error
-
-	secure, port, target, loadBalanceList := args.InitArgs()
-
-	switch {
-	case IsForwardProxyMode(target, loadBalanceList):
-		log.Println("forward proxy not implemented yet")
-	case IsReverseProxyMode(target, loadBalanceList):
-		if secure {
-			log.Println("secure reverse proxy not implemented yet")
-		} else {
-			err = reverse.ReverseProxy(port, *target)
-		}
-	case IsLoadBalancerMode(target, loadBalanceList):
-		if secure {
-			log.Println("load balancer not implemented yet")
-		} else {
-			err = loadbalance.LoadBalanceRoundRobinHTTP(port, *loadBalanceList)
-		}
+	args, err := args.InitArgsAndTargets()
+	if err != nil {
+		log.Fatalf("initializing froxy failed: %v", err)
 	}
-	log.Fatal(err)
+
+	mod, ph, err := selectProxyMode(args.Target, args.LoadBalanceList)
+	if err != nil {
+		log.Fatalf("selecting proxy mode failed: %v", err)
+	}
+	log.Printf("froxy %s mode selected", mod)
+
+	s, err := httpproxy.NewHttpProxyServer(args.Secure, args.Port, ph)
+	if err != nil {
+		log.Fatalf("initializing proxy server failed: %v", err)
+	}
+
+	log.Printf("proxy listening on port:%s", args.Port)
+	log.Fatal(s.StartProxy())
 }
 
-func IsForwardProxyMode(tg *string, lb *string) bool {
+func selectProxyMode(target *url.URL, loadBalanceList []*url.URL) (mode string, ph *proxyhandler.ProxyHandler, err error) {
+	switch {
+	case isForwardProxyMode(target, loadBalanceList):
+		log.Println("forward proxy not implemented yet")
+	case isReverseProxyMode(target, loadBalanceList):
+		return "reverse proxy", proxyhandler.NewReverseProxy(target), nil
+	case isLoadBalancerMode(target, loadBalanceList):
+		return "load balancer", proxyhandler.NewRoundRobinLoadBalancer(loadBalanceList), nil
+	}
+	return "", nil, fmt.Errorf("invalid proxy mode")
+}
+
+func isForwardProxyMode(tg *url.URL, lb []*url.URL) bool {
 	return tg == nil && lb == nil
 }
 
-func IsReverseProxyMode(tg *string, lb *string) bool {
+func isReverseProxyMode(tg *url.URL, lb []*url.URL) bool {
 	return tg != nil && lb == nil
 }
 
-func IsLoadBalancerMode(tg *string, lb *string) bool {
+func isLoadBalancerMode(tg *url.URL, lb []*url.URL) bool {
 	return tg == nil && lb != nil
 }
