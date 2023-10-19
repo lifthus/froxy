@@ -109,8 +109,8 @@ func copyHeader(dst, src http.Header) {
 type StandardForwardProxy struct{}
 
 func (sfp StandardForwardProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Println(r.RemoteAddr, "\t", r.Method, "\t", r.URL, "\t Host:", r.Host)
-	log.Println("\t\t", r.Header)
+	// log.Println(r.RemoteAddr, "\t", r.Method, "\t", r.URL, "\t Host:", r.Host)
+	// log.Println("\t\t", r.Header)
 
 	// for https tunneling
 	if r.Method == http.MethodConnect {
@@ -123,11 +123,11 @@ func (sfp StandardForwardProxy) ServeHTTP(w http.ResponseWriter, r *http.Request
 		log.Fatal(err)
 	}
 
-	reqb, err := httputil.DumpRequest(r, true)
+	_, err = httputil.DumpRequest(r, true)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println(string(reqb))
+	// log.Println(string(reqb))
 
 	p := httputil.NewSingleHostReverseProxy(target)
 	p.ServeHTTP(w, r)
