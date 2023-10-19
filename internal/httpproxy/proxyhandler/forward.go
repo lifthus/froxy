@@ -100,9 +100,9 @@ func copyHeader(dst, src http.Header) {
 	}
 }
 
-type SimpleForwardProxy struct{}
+type StandardForwardProxy struct{}
 
-func (sfp SimpleForwardProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (sfp StandardForwardProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	target, err := url.Parse(r.URL.Scheme + "://" + r.URL.Host)
 	if err != nil {
 		log.Fatal(err)

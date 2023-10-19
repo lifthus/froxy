@@ -7,8 +7,13 @@ import (
 	"strings"
 )
 
+type Secure struct {
+	Cert string
+	Key  string
+}
+
 type Args struct {
-	Secure          bool
+	Secure          *Secure
 	Port            string
 	Target          *url.URL
 	LoadBalanceList []*url.URL
@@ -16,14 +21,17 @@ type Args struct {
 
 func InitArgsAndTargets() (args *Args, err error) {
 	args = &Args{}
-	secureF := flag.Bool("s", false, "use https")
+	certF := flag.String("cert", "", "use https with given cert file")
+	keyF := flag.String("key", "", "use https with given key file")
 	portF := flag.String("p", "8542", "port number")
 	targetF := flag.String("t", "", "proxy target url")
 	loadBalanceF := flag.String("lb", "", "do load balancing to target urls in file from given path")
 
 	flag.Parse()
 
-	args.Secure = *secureF
+	if *certF != "" && *keyF != "" {
+		args.Secure = &Secure{*certF, *keyF}
+	}
 	args.Port = *portF
 	args.Target, err = parseUrlOrNil(*targetF)
 	if err != nil {
