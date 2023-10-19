@@ -2,9 +2,10 @@ package args
 
 import (
 	"flag"
-	"froxy/pkg/helper"
 	"net/url"
 	"strings"
+
+	"github.com/lifthus/froxy/pkg/helper"
 )
 
 type Secure struct {

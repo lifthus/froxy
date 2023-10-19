@@ -1,9 +1,10 @@
 package httpproxy
 
 import (
-	"froxy/internal/httpproxy/proxyhandler"
-	"froxy/pkg/helper"
 	"net/http"
+
+	"github.com/lifthus/froxy/internal/httpproxy/proxyhandler"
+	"github.com/lifthus/froxy/pkg/helper"
 )
 
 func NewHttpServerWithProxy(portNum string, ph *proxyhandler.ProxyHandler) ProxyServer {

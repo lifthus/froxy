@@ -1,10 +1,11 @@
 package proxyhandler
 
 import (
-	"froxy/pkg/helper"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+
+	"github.com/lifthus/froxy/pkg/helper"
 )
 
 func NewReverseProxy(target *url.URL) *ProxyHandler {

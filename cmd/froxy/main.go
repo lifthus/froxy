@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"froxy/init/args"
-	"froxy/internal/httpproxy"
-	"froxy/internal/httpproxy/proxyhandler"
 	"log"
 	"net/url"
+
+	"github.com/lifthus/froxy/init/args"
+	"github.com/lifthus/froxy/internal/httpproxy"
+	"github.com/lifthus/froxy/internal/httpproxy/proxyhandler"
 )
 
 func main() {
