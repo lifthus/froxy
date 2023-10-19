@@ -11,7 +11,7 @@ import (
 )
 
 func NewForwardProxy() *ProxyHandler {
-	return &ProxyHandler{ph: &PlainForwardProxy{}}
+	return &ProxyHandler{ph: &StandardForwardProxy{}}
 }
 
 type PlainForwardProxy struct{}
@@ -109,6 +109,9 @@ func copyHeader(dst, src http.Header) {
 type StandardForwardProxy struct{}
 
 func (sfp StandardForwardProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	log.Println(r.RemoteAddr, "\t", r.Method, "\t", r.URL, "\t Host:", r.Host)
+	log.Println("\t\t", r.Header)
+
 	// for https tunneling
 	if r.Method == http.MethodConnect {
 		proxyConnect(w, r)
