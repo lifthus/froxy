@@ -27,6 +27,9 @@ func main() {
 	}
 
 	log.Printf("proxy listening on port:%s", args.Port)
+	if args.Secure != nil {
+		log.Printf("\nHTTPS\ncert:%s\nkey:%s", args.Secure.Cert, args.Secure.Key)
+	}
 	log.Fatal(s.StartProxy())
 }
 

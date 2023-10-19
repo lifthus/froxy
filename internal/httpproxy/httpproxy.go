@@ -1,7 +1,6 @@
 package httpproxy
 
 import (
-	"fmt"
 	"froxy/init/args"
 	"froxy/internal/httpproxy/proxyhandler"
 )
@@ -9,7 +8,7 @@ import (
 func NewHttpProxyServer(secure *args.Secure, port string, proxyHandler *proxyhandler.ProxyHandler) (*HttpProxyServer, error) {
 	server := NewHttpServerWithProxy(port, proxyHandler)
 	if secure != nil {
-		return nil, fmt.Errorf("secure proxy not implemented yet")
+		server = NewHttpsServerWithProxy(*secure, port, proxyHandler)
 	}
 	return &HttpProxyServer{ps: server}, nil
 }

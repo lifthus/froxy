@@ -12,6 +12,7 @@ func NewHttpsServerWithProxy(secure args.Secure, portNum string, ph *proxyhandle
 	return &HttpsServerWithProxy{
 		portNum:      portNum,
 		proxyHandler: ph.Handler(),
+		secure:       secure,
 	}
 }
 

@@ -20,6 +20,12 @@ func (pfp PlainForwardProxy) ServeHTTP(w http.ResponseWriter, req *http.Request)
 	// log.Println(req.RemoteAddr, "\t", req.Method, "\t", req.URL, "\t Host:", req.Host)
 	// log.Println("\t\t", req.Header)
 
+	// for https tunneling
+	if req.Method == http.MethodConnect {
+		proxyConnect(w, req)
+		return
+	}
+
 	if req.URL.Scheme != "http" && req.URL.Scheme != "https" {
 		msg := "unsupported scheme " + req.URL.Scheme
 		http.Error(w, msg, http.StatusBadRequest)
@@ -103,6 +109,12 @@ func copyHeader(dst, src http.Header) {
 type StandardForwardProxy struct{}
 
 func (sfp StandardForwardProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// for https tunneling
+	if r.Method == http.MethodConnect {
+		proxyConnect(w, r)
+		return
+	}
+
 	target, err := url.Parse(r.URL.Scheme + "://" + r.URL.Host)
 	if err != nil {
 		log.Fatal(err)
