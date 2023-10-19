@@ -4,22 +4,24 @@ import (
 	"fmt"
 	"froxy/init/args"
 	"froxy/internal/httpproxy/proxyhandler"
-	"net/http"
 )
 
 func NewHttpProxyServer(secure *args.Secure, port string, proxyHandler *proxyhandler.ProxyHandler) (*HttpProxyServer, error) {
+	server := NewHttpServerWithProxy(port, proxyHandler)
 	if secure != nil {
 		return nil, fmt.Errorf("secure proxy not implemented yet")
 	}
-	server := NewHttpServerWithProxy(port, proxyHandler)
-	return &HttpProxyServer{s: server}, nil
+	return &HttpProxyServer{ps: server}, nil
+}
 
+type ProxyServer interface {
+	StartProxy() error
 }
 
 type HttpProxyServer struct {
-	s *http.Server
+	ps ProxyServer
 }
 
 func (s HttpProxyServer) StartProxy() error {
-	return s.s.ListenAndServe()
+	return s.ps.StartProxy()
 }

@@ -6,11 +6,23 @@ import (
 	"net/http"
 )
 
-func NewHttpServerWithProxy(portNum string, ph *proxyhandler.ProxyHandler) *http.Server {
-	host := helper.HttpLocalHostFromPort(portNum)
+func NewHttpServerWithProxy(portNum string, ph *proxyhandler.ProxyHandler) ProxyServer {
+	return &HttpServerWithProxy{
+		portNum:      portNum,
+		proxyHandler: ph.Handler(),
+	}
+}
+
+type HttpServerWithProxy struct {
+	portNum      string
+	proxyHandler http.Handler
+}
+
+func (s HttpServerWithProxy) StartProxy() error {
+	host := helper.HttpLocalHostFromPort(s.portNum)
 	server := &http.Server{
 		Addr:    host,
-		Handler: ph.Handler(),
+		Handler: s.proxyHandler,
 	}
-	return server
+	return server.ListenAndServe()
 }

@@ -25,9 +25,9 @@ func InitArgsAndTargets() (args *Args, err error) {
 	certF := flag.String("cert", "", "use https with given cert file")
 	keyF := flag.String("key", "", "use https with given key file")
 	// # proxy options : each combination of these options resolves to a proxy mode
-	// - | -p : forward proxy
-	// -t | -p&t : reverse proxy
-	// -lb | -p&lb : simple load balancer
+	// - | -p : forward proxy. with https, tls-tunneling forward proxy
+	// -t | -p&t : reverse proxy. with https, tls-terminating reverse proxy
+	// -lb | -p&lb : simple load balancer. with https, tls-terminating load balancer
 	portF := flag.String("p", "8542", "port number")
 	targetF := flag.String("t", "", "proxy target url")
 	loadBalanceF := flag.String("lb", "", "do load balancing to target urls in file from given path")
