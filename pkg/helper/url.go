@@ -7,7 +7,7 @@ import (
 )
 
 func HttpLocalHostFromPort(port string) string {
-	return "127.0.0.1:" + port
+	return ":" + port
 }
 
 func ParseStringsToUrlsDefaultHTTP(addrs []string) ([]*url.URL, error) {
