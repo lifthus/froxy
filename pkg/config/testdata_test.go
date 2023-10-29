@@ -3,8 +3,7 @@ package config
 import "os"
 
 var (
-	Froxyfile                = ""
-	FroxyfileCommentsRemoved = ""
+	Froxyfile = ""
 )
 
 func LoadTestdata() error {
@@ -13,15 +12,11 @@ func LoadTestdata() error {
 		return err
 	}
 	bt := make([]byte, 1000000)
-	ff.Read(bt)
-	Froxyfile = string(bt)
-
-	ff, err = os.Open("testdata/froxyfile_noComments")
-	if err != nil {
+	if n, err := ff.Read(bt); err != nil {
 		return err
+	} else {
+		Froxyfile = string(bt[:n])
 	}
-	bt = make([]byte, 1000000)
-	ff.Read(bt)
-	FroxyfileCommentsRemoved = string(bt)
+
 	return nil
 }
