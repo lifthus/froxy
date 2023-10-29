@@ -5,12 +5,11 @@ import (
 	"testing"
 )
 
-var (
-	Froxyfile                = ""
-	FroxyfileCommentsRemoved = ""
-)
-
 func TestMain(m *testing.M) {
+	err := LoadTestdata()
+	if err != nil {
+		panic(err)
+	}
 	os.Exit(m.Run())
 }
 
@@ -20,4 +19,5 @@ func TestParset(t *testing.T) {
 	// bt := make([]byte, 1000)
 	// froxyfile.Read(bt)
 	// t.Error(string(bt))
+	t.Errorf(FroxyfileCommentsRemoved)
 }
