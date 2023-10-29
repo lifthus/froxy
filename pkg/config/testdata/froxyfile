@@ -1,0 +1,36 @@
+# Froxy config example
+allowed: # IP addrs allowed to use the proxy without authentication.
+  - 123.123.123.123 # It can be used when
+forward: # forward proxy config
+  name: forward-froxy # name to identify the proxy
+  port: 8543 # port to listen on
+reverse: # reverse proxy config
+  name: example-reverse1
+  port: 8544
+  host: abc.com # request host to match (optional. in default, host is simply ignored)
+  proxy: # proxy config
+    - path: /api # all request to /api will be forwarded to "to" property below
+      to: http://127.0.0.1:8545
+    - path: /api/v2 # longer path(/api/v2) will be matched first, prior to shorter path(/api)
+      to: http://127.0.0.1:8546
+reverse:
+  name: example-reverse2
+  port: 8547
+  host: def.com # optional
+  proxy:
+    to: http://127.0.0.1:8548 # all requests to the host will be forwarded to this.
+reverse:
+  name: example-loadbalancer
+  port: 8549
+  host: ghi.com
+  proxy:
+    to: # if "to" is a list, the reverse proxy will work as a round-robin load balancer.
+        # "to" list can be applied to path config as well.
+      - http://127.0.0.1:8550
+      - http://127.0.0.1:8551
+
+# If you want to use web dashboard, you have to set all of the following flags.
+# froxy --cert <cert-file> --key <key-file> --id <root-id> --pw <root-pw>
+# If you wanna disable HTTPS for dashboard, though it is default, you must explicitly set --unsecure flag.
+# froxy --unsecure --id <root-id> --pw<root-pw>
+# The default port is 8542 but you can change it with --port flag.

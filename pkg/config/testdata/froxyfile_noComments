@@ -1,0 +1,31 @@
+
+allowed: 
+  - 123.123.123.123 
+forward: 
+  name: forward-froxy 
+  port: 8543 
+reverse: 
+  name: example-reverse1
+  port: 8544
+  host: abc.com 
+  proxy: 
+    - path: /api 
+      to: http://127.0.0.1:8545
+    - path: /api/v2 
+      to: http://127.0.0.1:8546
+reverse:
+  name: example-reverse2
+  port: 8547
+  host: def.com 
+  proxy:
+    to: http://127.0.0.1:8548 
+reverse:
+  name: example-loadbalancer
+  port: 8549
+  host: ghi.com
+  proxy:
+    to: 
+        
+      - http://127.0.0.1:8550
+      - http://127.0.0.1:8551
+
