@@ -1,12 +1,8 @@
 package config
 
 import (
-	"errors"
 	"flag"
-	"fmt"
 	"net/url"
-	"os"
-	"regexp"
 	"strings"
 
 	"github.com/lifthus/froxy/internal/froxyfile"
@@ -57,106 +53,6 @@ func InitConfig() (*FroxyConfig, error) {
 	}
 
 	return fconfig, nil
-}
-
-func initDashboard(rootID, rootPW, port, certPath, keyPath string) (*Dashboard, error) {
-	dsbd := &Dashboard{}
-	if isDashboardDisabled(rootID, rootPW) {
-		return nil, nil
-	}
-	err := validateRootCredentials(rootID, rootPW)
-	if err != nil {
-		return nil, err
-	}
-	dsbd.RootID = rootID
-	dsbd.RootPW = rootPW
-	dsbd.Port, err = validateAndFormatPort(port)
-	if err != nil {
-		return nil, err
-	}
-	dsbd.TLSConfig, err = initTLSConfig(certPath, keyPath)
-	if err != nil {
-		return nil, err
-	}
-	return dsbd, nil
-}
-
-func isDashboardDisabled(rootID, rootPW string) bool {
-	return rootID == "" || rootPW == ""
-}
-
-func validateRootCredentials(rootID, rootPW string) error {
-	idMatched, err := regexp.MatchString("^[a-zA-Z_][a-zA-Z0-9_]{4,20}$", rootID)
-	if err != nil {
-		return err
-	} else if !idMatched {
-		return fmt.Errorf("root id must be 5~20 characters(only digits, english alphabets and underscore) long starting with an alphabet")
-	}
-	pwMatched, err := regexp.MatchString("^[a-zA-Z0-9_!@#$%^&*]*[_!@#$%^&*]+[a-zA-Z0-9_!@#$%^&*]*$", rootPW)
-	if err != nil {
-		return err
-	} else if !pwMatched || len(rootPW) < 6 || len(rootPW) > 100 {
-		return fmt.Errorf("root password must be 6~100 characters(only digits, english alphabets and at least one between _!@#$%%^&*) long")
-	}
-	return nil
-}
-
-func validateAndFormatPort(port string) (string, error) {
-	portMatched, err := regexp.MatchString("^:?\\d{1,5}$", port)
-	if err != nil {
-		return "", err
-	} else if !portMatched {
-		return "", fmt.Errorf("port number must be 1~5 digits long")
-	}
-	return ":" + strings.TrimPrefix(port, ":"), nil
-}
-
-func initTLSConfig(certPath, keyPath string) (*tls.Config, error) {
-	if certPath == "" && keyPath == "" {
-		return signTLSCertSelf()
-	}
-	return loadTLSConfig(certPath, keyPath)
-}
-
-func signTLSCertSelf() (*tls.Config, error) {
-	// TODO: check outbind IP addr and generate self-signed cert with it(including localhost and 127.0.0.1).
-	return nil, fmt.Errorf("self-signed cert generation is not implemented yet")
-}
-
-func loadTLSConfig(certPath, keyPath string) (*tls.Config, error) {
-	cert, err := tls.LoadX509KeyPair(certPath, keyPath)
-	if err != nil {
-		return nil, err
-	}
-	return &tls.Config{Certificates: []tls.Certificate{cert}}, nil
-}
-
-func initFroxyfile() (*froxyfile.FroxyfileConfig, error) {
-	ffb, err := tryOpeningAndReadFroxyfile([]string{"froxyfile", "froxyfile.yml", "froxyfile.yaml"})
-	if err != nil {
-		return nil, err
-	}
-	return froxyfile.Parse(ffb)
-}
-
-func tryOpeningAndReadFroxyfile(paths []string) ([]byte, error) {
-	var err error
-	var ff *os.File
-	for i, path := range paths {
-		ff, err = os.Open(path)
-		if errors.Is(err, os.ErrNotExist) && i < len(paths)-1 {
-			continue
-		} else if err != nil {
-			return nil, err
-		}
-		break
-	}
-	ffb := make([]byte, 1000000)
-	if n, err := ff.Read(ffb); err != nil {
-		return nil, err
-	} else {
-		return ffb[:n], nil
-	}
 }
 
 type Args struct {
