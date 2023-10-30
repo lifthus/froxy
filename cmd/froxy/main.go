@@ -11,6 +11,11 @@ import (
 )
 
 func main() {
+	_, err := config.InitConfig()
+	if err != nil {
+		log.Fatalf("initializing froxy failed: %v", err)
+	}
+
 	args, err := config.InitArgsAndTargets()
 	if err != nil {
 		log.Fatalf("initializing froxy failed: %v", err)
