@@ -3,7 +3,7 @@ package config
 import "os"
 
 var (
-	Froxyfile = ""
+	FroxyfileBytes = []byte{}
 )
 
 func LoadTestdata() error {
@@ -15,8 +15,7 @@ func LoadTestdata() error {
 	if n, err := ff.Read(bt); err != nil {
 		return err
 	} else {
-		Froxyfile = string(bt[:n])
+		FroxyfileBytes = bt[:n]
 	}
-
 	return nil
 }
