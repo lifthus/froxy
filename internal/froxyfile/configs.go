@@ -1,4 +1,4 @@
-package config
+package froxyfile
 
 type FroxyfileConfig struct {
 	// Allowed holds IP addresses that are allowed to use the proxy.

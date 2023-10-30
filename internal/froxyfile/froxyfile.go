@@ -1,4 +1,4 @@
-package config
+package froxyfile
 
 import (
 	"gopkg.in/yaml.v3"

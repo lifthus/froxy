@@ -23,8 +23,7 @@ reverse: # reverse proxy config
         to: # if you provide multiple urls, the reverse proxy automatically works as a round-robin load balancer.
           - http://127.0.0.1:8547
           - http://127.0.0.1:8548
-# If you want to use web dashboard, you have to set all of the following flags.
-# > froxy --cert <cert-file> --key <key-file> --id <root-id> --pw <root-pw>
-# If you wanna disable HTTPS for dashboard, though it is default, you must explicitly set --unsecure flag.
-# > froxy --unsecure --id <root-id> --pw<root-pw>
+# If you want to use web dashboard, you have to provide root user credentials with --id and --pw flags.
+# > froxy [--cert <cert-file> --key <key-file>] --id <root-id> --pw <root-pw>
+# Using HTTPS is mandatory for web dashboard, so if you don't provide key pair, froxy automatically generates self-signed key pair for HTTPS.
 # The default port is 8542 but you can change it with --port flag.
