@@ -14,7 +14,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestFroxyfileParser(t *testing.T) {
-	config, err := ParseFroxyfile(FroxyfileBytes)
+	config, err := Parse(FroxyfileBytes)
 	if err != nil {
 		t.Errorf("parsing froxyfile failed: %v", err)
 	}

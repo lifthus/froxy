@@ -4,7 +4,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func ParseFroxyfile(ffb []byte) (*FroxyfileConfig, error) {
+func Parse(ffb []byte) (*FroxyfileConfig, error) {
 	ffconfig := &FroxyfileConfig{}
 	err := yaml.Unmarshal(ffb, ffconfig)
 	if err != nil {

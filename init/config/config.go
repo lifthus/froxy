@@ -8,6 +8,10 @@ import (
 	"github.com/lifthus/froxy/pkg/helper"
 )
 
+func InitConfig() {
+
+}
+
 type Secure struct {
 	Cert string
 	Key  string
