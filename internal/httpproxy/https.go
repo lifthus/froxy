@@ -7,10 +7,10 @@ import (
 	"github.com/lifthus/froxy/internal/httpproxy/proxyhandler"
 	"github.com/lifthus/froxy/pkg/helper"
 
-	"github.com/lifthus/froxy/init/args"
+	"github.com/lifthus/froxy/init/config"
 )
 
-func NewHttpsServerWithProxy(secure args.Secure, portNum string, ph *proxyhandler.ProxyHandler) ProxyServer {
+func NewHttpsServerWithProxy(secure config.Secure, portNum string, ph *proxyhandler.ProxyHandler) ProxyServer {
 	return &HttpsServerWithProxy{
 		portNum:      portNum,
 		proxyHandler: ph.Handler(),
@@ -21,7 +21,7 @@ func NewHttpsServerWithProxy(secure args.Secure, portNum string, ph *proxyhandle
 type HttpsServerWithProxy struct {
 	portNum      string
 	proxyHandler http.Handler
-	secure       args.Secure
+	secure       config.Secure
 }
 
 func (s HttpsServerWithProxy) StartProxy() error {
