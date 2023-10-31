@@ -1,7 +1,6 @@
 package config
 
 import (
-	"crypto/tls"
 	"fmt"
 	"regexp"
 	"strings"
@@ -19,10 +18,6 @@ func initDashboard(rootID, rootPW, port, certPath, keyPath string) (*Dashboard, 
 	dsbd.RootID = rootID
 	dsbd.RootPW = rootPW
 	dsbd.Port, err = validateAndFormatPort(port)
-	if err != nil {
-		return nil, err
-	}
-	dsbd.TLSConfig, err = initTLSConfig(certPath, keyPath)
 	if err != nil {
 		return nil, err
 	}
@@ -57,24 +52,4 @@ func validateAndFormatPort(port string) (string, error) {
 		return "", fmt.Errorf("port number must be 1~5 digits long")
 	}
 	return ":" + strings.TrimPrefix(port, ":"), nil
-}
-
-func initTLSConfig(certPath, keyPath string) (*tls.Config, error) {
-	if certPath == "" && keyPath == "" {
-		return signTLSCertSelf()
-	}
-	return loadTLSConfig(certPath, keyPath)
-}
-
-func signTLSCertSelf() (*tls.Config, error) {
-	// TODO: check outbind IP addr and generate self-signed cert with it(including localhost and 127.0.0.1).
-	return nil, fmt.Errorf("self-signed cert generation is not implemented yet")
-}
-
-func loadTLSConfig(certPath, keyPath string) (*tls.Config, error) {
-	cert, err := tls.LoadX509KeyPair(certPath, keyPath)
-	if err != nil {
-		return nil, err
-	}
-	return &tls.Config{Certificates: []tls.Certificate{cert}}, nil
 }

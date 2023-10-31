@@ -15,10 +15,11 @@ type ForwardFroxy struct {
 
 // ReverseFroxy holds each reverse proxy's config
 type ReverseFroxy struct {
-	Name  string `yaml:"name"`
-	Port  string `yaml:"port"`
-	Host  string `yaml:"host"`
-	Proxy []struct {
+	Name     string `yaml:"name"`
+	Insecure bool   `yaml:"insecure"`
+	Port     string `yaml:"port"`
+	Host     string `yaml:"host"`
+	Proxy    []struct {
 		Path string   `yaml:"path"`
 		To   []string `yaml:"to"`
 	} `yaml:"proxy"`

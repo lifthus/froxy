@@ -12,6 +12,10 @@ import (
 )
 
 type FroxyConfig struct {
+	// TLSConfig holds the HTTPS configurations for the dashboard and the reverse proxies.
+	// HTTPS is mandatory for using the web dashboard.
+	// If you don't provide key pair, Froxy will generate self-signed key pair for itself.
+	TLSConfig *tls.Config
 	// Dashboard holds the configuration for the web dashboard.
 	// If nil, the web dashboard isn't provided(still Froxy will work with froxyfile configurations).
 	DashBoard *Dashboard
@@ -25,10 +29,6 @@ type Dashboard struct {
 	RootPW string
 	// Port is the port number for the web dashboard. default is 8542.
 	Port string
-	// TLSConfig holds the HTTPS configurations for the dashboard.
-	// HTTPS is mandatory for using the web dashboard.
-	// If you don't provide key pair, Froxy will generate self-signed key pair for itself.
-	TLSConfig *tls.Config
 }
 
 func InitConfig() (*FroxyConfig, error) {
@@ -48,6 +48,11 @@ func InitConfig() (*FroxyConfig, error) {
 	}
 
 	fconfig.Froxyfile, err = initFroxyfile()
+	if err != nil {
+		return nil, err
+	}
+
+	fconfig.TLSConfig, err = initTLSConfig(*fCertPath, *fKeyPath)
 	if err != nil {
 		return nil, err
 	}

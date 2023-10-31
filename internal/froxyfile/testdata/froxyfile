@@ -10,6 +10,7 @@ forward:
 # reverse is config list of reverse proxies.
 reverse: # reverse proxy config
   - name: example-reverse
+    insecure: true # default is false. if you want to use http reverse proxy(not https), set this to true explicitly.
     port: 8544
     host: abc.com # target host of request message to match (optional. in default, host is simply ignored).
     proxy: # proxy config
