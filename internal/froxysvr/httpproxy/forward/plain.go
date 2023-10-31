@@ -54,7 +54,6 @@ func (pfp PlainForwardProxy) ServeHTTP(w http.ResponseWriter, req *http.Request)
 
 	copyHeader(w.Header(), resp.Header)
 	w.WriteHeader(resp.StatusCode)
-
 	io.Copy(w, resp.Body)
 }
 
