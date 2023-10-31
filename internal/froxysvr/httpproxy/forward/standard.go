@@ -10,10 +10,6 @@ import (
 type StandardForwardProxy struct{}
 
 func (sfp StandardForwardProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// log.Println(r.RemoteAddr, "\t", r.Method, "\t", r.URL, "\t Host:", r.Host)
-	// log.Println("\t\t", r.Header)
-
-	// for https tunneling
 	if r.Method == http.MethodConnect {
 		proxyConnect(w, r)
 		return
