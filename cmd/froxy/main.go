@@ -18,8 +18,10 @@ func main() {
 	}
 
 	froxysvr.ConfigDashboard(fconfigs.Dashboard)
+	froxysvr.ConfigForwardProxies(fconfigs.ForwardProxyList)
+	froxysvr.ConfigReverseProxies(fconfigs.ReverseProxyList)
+	log.Fatal(froxysvr.Boot())
 
-	err = froxysvr.Boot()
 	if err != nil {
 		log.Fatalf("starting froxy failed: %v", err)
 	}
