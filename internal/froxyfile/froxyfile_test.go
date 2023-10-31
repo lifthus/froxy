@@ -14,12 +14,15 @@ func TestMain(m *testing.M) {
 }
 
 func TestFroxyfileParser(t *testing.T) {
-	config, err := Parse(FroxyfileBytes)
+	config, err := parse(FroxyfileBytes)
 	if err != nil {
 		t.Errorf("parsing froxyfile failed: %v", err)
 	}
 
-	if config.ForwardList[0].Allowed[0] != "123.123.123.123" {
+	if config.Dashboard.TLS != nil {
+		t.Errorf("dashboard tls parsed incorrectly")
+	}
+	if config.ForwardList[0].Allowed[1] != "123.123.123.123" {
 		t.Errorf("forward list parsed incorrectly")
 	}
 

@@ -2,8 +2,22 @@ package froxyfile
 
 type FroxyfileConfig struct {
 	// Allowed holds IP addresses that are allowed to use the proxy.
+	Dashboard   *Dashboard     `yaml:"dashboard"`
 	ForwardList []ForwardFroxy `yaml:"forward"`
 	ReverseList []ReverseFroxy `yaml:"reverse"`
+}
+
+// Dashboard holds the dashboard's config
+type Dashboard struct {
+	Port *string `yaml:"port"`
+	Root struct {
+		ID string `yaml:"id"`
+		PW string `yaml:"pw"`
+	} `yaml:"root"`
+	TLS *struct {
+		Cert string `yaml:"cert"`
+		Key  string `yaml:"key"`
+	} `yaml:"tls"`
 }
 
 // ForwardFroxy holds each forward proxy's config
@@ -16,10 +30,14 @@ type ForwardFroxy struct {
 // ReverseFroxy holds each reverse proxy's config
 type ReverseFroxy struct {
 	Name     string `yaml:"name"`
-	Insecure bool   `yaml:"insecure"`
 	Port     string `yaml:"port"`
 	Host     string `yaml:"host"`
-	Proxy    []struct {
+	Insecure bool   `yaml:"insecure"`
+	TLS      *struct {
+		Cert string `yaml:"cert"`
+		Key  string `yaml:"key"`
+	}
+	Proxy []struct {
 		Path string   `yaml:"path"`
 		To   []string `yaml:"to"`
 	} `yaml:"proxy"`

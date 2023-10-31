@@ -7,53 +7,36 @@ import (
 
 	"github.com/lifthus/froxy/internal/froxyfile"
 	"github.com/lifthus/froxy/pkg/helper"
-
-	"crypto/tls"
 )
 
 type FroxyConfig struct {
-	// TLSConfig holds the HTTPS configurations for the dashboard and the reverse proxies.
-	// HTTPS is mandatory for using the web dashboard.
-	// If you don't provide key pair, Froxy will generate self-signed key pair for itself.
-	TLSConfig *tls.Config
 	// Dashboard holds the configuration for the web dashboard.
 	// If nil, the web dashboard isn't provided(still Froxy will work with froxyfile configurations).
-	DashBoard *Dashboard
-	// Froxyfile holds the configurations of froxyfile(mostly for proxies).
-	Froxyfile *froxyfile.FroxyfileConfig
-}
-type Dashboard struct {
-	// RootID identifies the root user, with which the user can sign in to the web dashboard as an admin.
-	// To enable the web dashboard, root user configurations MUST be provided.
-	RootID string
-	RootPW string
-	// Port is the port number for the web dashboard. default is 8542.
-	Port string
+	Dashboard *Dashboard
+
+	ForwardProxyList []*ForwardFroxy
+	ReverseProxyList []*ReverseFroxy
 }
 
 func InitConfig() (*FroxyConfig, error) {
-	fRootID := flag.String("id", "", "dashboard root id")
-	fRootPW := flag.String("pw", "", "dashboard root password")
-	fCertPath := flag.String("cert", "", "dashboard https cert file, self-signed if not provided")
-	fKeyPath := flag.String("key", "", "dashboard https key file, self-signed if not provided")
-	fPort := flag.String("port", "8542", "dashboard port number")
-	flag.Parse()
 
 	fconfig := &FroxyConfig{}
 	var err error
 
-	fconfig.DashBoard, err = initDashboard(*fRootID, *fRootPW, *fPort, *fCertPath, *fKeyPath)
+	ff, err := froxyfile.Load("froxyfile", "froxyfile.yml", "froxyfile.yaml")
 	if err != nil {
 		return nil, err
 	}
 
-	fconfig.Froxyfile, err = initFroxyfile()
-	if err != nil {
+	if fconfig.Dashboard, err = configDashboard(ff.Dashboard); err != nil {
 		return nil, err
 	}
 
-	fconfig.TLSConfig, err = initTLSConfig(*fCertPath, *fKeyPath)
-	if err != nil {
+	if fconfig.ForwardProxyList, err = configForwardProxyList(ff.ForwardList); err != nil {
+		return nil, err
+	}
+
+	if fconfig.ReverseProxyList, err = configReverseProxyList(ff.ReverseList); err != nil {
 		return nil, err
 	}
 

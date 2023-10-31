@@ -1,31 +1,54 @@
 package config
 
 import (
+	"crypto/tls"
 	"fmt"
 	"regexp"
 	"strings"
+
+	"github.com/lifthus/froxy/internal/froxyfile"
+	"github.com/lifthus/froxy/pkg/helper"
 )
 
-func initDashboard(rootID, rootPW, port, certPath, keyPath string) (*Dashboard, error) {
-	dsbd := &Dashboard{}
-	if isDashboardDisabled(rootID, rootPW) {
+type Dashboard struct {
+	// RootID identifies the root user, with which the user can sign in to the web dashboard as an admin.
+	// To enable the web dashboard, root user configurations MUST be provided.
+	RootID string
+	RootPW string
+	// Port is the port number for the web dashboard. default is :8542.
+	Port string
+	// TLSConfig holds the HTTPS configurations for the dashboard.
+	// HTTPS is mandatory for using the web dashboard.
+	// If you don't provide key pair, Froxy will generate self-signed key pair for itself.
+	TLSConfig *tls.Config
+}
+
+func configDashboard(ff *froxyfile.Dashboard) (dsbd *Dashboard, err error) {
+	dsbd = &Dashboard{}
+	if isDashboardDisabled(ff) {
 		return nil, nil
 	}
-	err := validateRootCredentials(rootID, rootPW)
-	if err != nil {
+	if err := validateRootCredentials(ff.Root.ID, ff.Root.PW); err != nil {
 		return nil, err
 	}
-	dsbd.RootID = rootID
-	dsbd.RootPW = rootPW
-	dsbd.Port, err = validateAndFormatPort(port)
+	dsbd.RootID = ff.Root.ID
+	dsbd.RootPW = ff.Root.PW
+	if dsbd.Port, err = validateAndFormatPort(ff.Port); err != nil {
+		return nil, err
+	}
+	if ff.TLS != nil {
+		dsbd.TLSConfig, err = helper.LoadTLSConfig(ff.TLS.Cert, ff.TLS.Key)
+	} else {
+		dsbd.TLSConfig, err = helper.SignTLSCertSelf()
+	}
 	if err != nil {
 		return nil, err
 	}
 	return dsbd, nil
 }
 
-func isDashboardDisabled(rootID, rootPW string) bool {
-	return rootID == "" || rootPW == ""
+func isDashboardDisabled(ff *froxyfile.Dashboard) bool {
+	return ff == nil
 }
 
 func validateRootCredentials(rootID, rootPW string) error {
@@ -44,7 +67,11 @@ func validateRootCredentials(rootID, rootPW string) error {
 	return nil
 }
 
-func validateAndFormatPort(port string) (string, error) {
+func validateAndFormatPort(pPort *string) (string, error) {
+	port := ":8542"
+	if pPort != nil {
+		port = *pPort
+	}
 	portMatched, err := regexp.MatchString("^:?\\d{1,5}$", port)
 	if err != nil {
 		return "", err
