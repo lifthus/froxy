@@ -17,10 +17,14 @@ type Dashboard struct {
 	RootPW string
 	// Port is the port number for the web dashboard. default is :8542.
 	Port string
-	// TLSConfig holds the HTTPS configurations for the dashboard.
+	// Certificate holds the HTTPS Certificate for the dashboard.
 	// HTTPS is mandatory for using the web dashboard.
 	// If you don't provide key pair, Froxy will generate self-signed key pair for itself.
-	TLSConfig *tls.Config
+	Certificate tls.Certificate
+}
+
+func (ds Dashboard) GetTLSConfig() *tls.Config {
+	return &tls.Config{Certificates: []tls.Certificate{ds.Certificate}}
 }
 
 func configDashboard(ff *froxyfile.Dashboard) (dsbd *Dashboard, err error) {
@@ -37,9 +41,9 @@ func configDashboard(ff *froxyfile.Dashboard) (dsbd *Dashboard, err error) {
 		return nil, err
 	}
 	if ff.TLS != nil {
-		dsbd.TLSConfig, err = helper.LoadTLSConfig(ff.TLS.Cert, ff.TLS.Key)
+		dsbd.Certificate, err = helper.LoadTLSCert(ff.TLS.Cert, ff.TLS.Key)
 	} else {
-		dsbd.TLSConfig, err = helper.SignTLSCertSelf()
+		dsbd.Certificate, err = helper.SignTLSCertSelf()
 	}
 	if err != nil {
 		return nil, err

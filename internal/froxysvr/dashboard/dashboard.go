@@ -12,7 +12,7 @@ func ConfigDashboardServer(dashboard *config.Dashboard) *http.Server {
 	server := &http.Server{
 		Addr:      dashboard.Port,
 		Handler:   mux,
-		TLSConfig: dashboard.TLSConfig,
+		TLSConfig: dashboard.GetTLSConfig(),
 	}
 	return server
 }

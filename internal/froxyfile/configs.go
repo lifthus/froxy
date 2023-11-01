@@ -31,14 +31,16 @@ type ForwardFroxy struct {
 type ReverseFroxy struct {
 	Name     string `yaml:"name"`
 	Port     string `yaml:"port"`
-	Host     string `yaml:"host"`
 	Insecure bool   `yaml:"insecure"`
-	TLS      *struct {
-		Cert string `yaml:"cert"`
-		Key  string `yaml:"key"`
-	}
-	Proxy []struct {
-		Path string   `yaml:"path"`
-		To   []string `yaml:"to"`
+	Proxy    []struct {
+		Host string `yaml:"host"`
+		TLS  *struct {
+			Cert string `yaml:"cert"`
+			Key  string `yaml:"key"`
+		} `yaml:"tls"`
+		Target []struct {
+			Path string   `yaml:"path"`
+			To   []string `yaml:"to"`
+		} `yaml:"target"`
 	} `yaml:"proxy"`
 }

@@ -21,19 +21,20 @@ forward:
 reverse: # reverse proxy config
   - name: example-reverse
     port: 8544
-    host: abc.com # target host of request message to match (optional. in default, host is simply ignored).
-    insecure: false # if explcitly set to true, HTTP is used instead of HTTPS(ignoring "tls" just below). Default is false.
-    tls: # if not set, self-signed certificate for given host is automatically generated.
-      cert: ./cert2.pem
-      key: ./key2.pem
-    proxy: # proxy config
-      - path: / # all requests to abc.com will be forwarded to the url specified in "to" property below.
-        to:
-          - http://127.0.0.1:8545
-      - path: /api # all request with target url starting with "/api" will be forwarded to the url specified in "to" property below.
-        to:
-          - http://127.0.0.1:8546
-      - path: /api/v2 # note that longer path(/api/v2) will be matched first, prior to shorter path(/api).
-        to: # if you provide multiple urls, the reverse proxy automatically works as a round-robin load balancer.
-          - http://127.0.0.1:8547
-          - http://127.0.0.1:8548
+    insecure: false # if explcitly set to true, HTTP is used instead of HTTPS(ignoring "tls" field of each "proxy"). Default is false.
+    proxy:
+      - host: abc.com # target host of request message to match (optional. in default, host is simply ignored).
+        tls: # if not set, self-signed certificate for given host is automatically generated.
+          cert: ./cert2.pem
+          key: ./key2.pem
+        target: # proxy config
+          - path: / # all requests to abc.com will be forwarded to the url specified in "to" property below.
+            to:
+              - http://127.0.0.1:8545
+          - path: /api # all request with target url starting with "/api" will be forwarded to the url specified in "to" property below.
+            to:
+              - http://127.0.0.1:8546
+          - path: /api/v2 # note that longer path(/api/v2) will be matched first, prior to shorter path(/api).
+            to: # if you provide multiple urls, the reverse proxy automatically works as a round-robin load balancer.
+              - http://127.0.0.1:8547
+              - http://127.0.0.1:8548

@@ -61,8 +61,9 @@ func ConfigReverseProxies(rfcs []*config.ReverseFroxy) error {
 		server := &http.Server{
 			Addr:      rfc.Port,
 			Handler:   rf,
-			TLSConfig: rfc.TLSConfig,
+			TLSConfig: rfc.GetTLSConfig(),
 		}
+
 		err := registerHTTPServer(rfc.Name, server)
 		if err != nil {
 			return err
