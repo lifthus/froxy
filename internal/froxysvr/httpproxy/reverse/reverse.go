@@ -7,6 +7,8 @@ import (
 )
 
 type ReverseFroxy struct {
+	Proxy []*config.ReverseProxySet
+
 	handler http.HandlerFunc
 }
 
@@ -19,6 +21,6 @@ func (rf *ReverseFroxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }
 
 func ConfigReverseProxy(rfc *config.ReverseFroxy) *ReverseFroxy {
-	rf := &ReverseFroxy{}
+	rf := &ReverseFroxy{Proxy: rfc.Proxy}
 	return useRoundRobinLoadBalanceHandler(rf)
 }

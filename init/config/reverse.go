@@ -21,14 +21,14 @@ func (rf *ReverseFroxy) GetTLSConfig() *tls.Config {
 	}
 	certs := make([]tls.Certificate, len(rf.Proxy))
 	for _, p := range rf.Proxy {
-		certs = append(certs, p.Certificate)
+		certs = append(certs, p.certificate)
 	}
 	return &tls.Config{Certificates: certs}
 }
 
 type ReverseProxySet struct {
 	Host        string
-	Certificate tls.Certificate
+	certificate tls.Certificate
 	Target      []struct {
 		Path string
 		To   []string
@@ -68,9 +68,9 @@ func setReverseProxies(insecure bool, rpfs []struct {
 	for i, rpf := range rpfs {
 		rps := &ReverseProxySet{}
 		if !insecure && !isKeyPairGiven(&rpf) {
-			rps.Certificate, err = helper.SignTLSCertSelf()
+			rps.certificate, err = helper.SignTLSCertSelf()
 		} else if !insecure && isKeyPairGiven(&rpf) {
-			rps.Certificate, err = helper.LoadTLSCert(rpf.TLS.Cert, rpf.TLS.Key)
+			rps.certificate, err = helper.LoadTLSCert(rpf.TLS.Cert, rpf.TLS.Key)
 		}
 		if err != nil {
 			return nil, err
