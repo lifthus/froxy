@@ -6,11 +6,12 @@ import (
 
 	"github.com/lifthus/froxy/init/config"
 	"github.com/lifthus/froxy/internal/froxysvr/dashboard"
-	"github.com/lifthus/froxy/internal/froxysvr/httpproxy"
+	"github.com/lifthus/froxy/internal/froxysvr/httpproxy/forward"
+	"github.com/lifthus/froxy/internal/froxysvr/httpproxy/reverse"
 )
 
 var (
-	froxyHTTPSvrMap = make(map[string]*http.Server)
+	svrMap = make(map[string]*http.Server)
 )
 
 func Boot() error {
@@ -18,12 +19,17 @@ func Boot() error {
 }
 
 func registerHTTPServer(name string, svr *http.Server) error {
-	if _, ok := froxyHTTPSvrMap[name]; ok {
+	if _, ok := svrMap[name]; ok {
 		return fmt.Errorf("server %s already registered", name)
 	}
-	froxyHTTPSvrMap[name] = svr
+	svrMap[name] = svr
 	return nil
 }
+
+var (
+	forwardFroxyMap = make(map[string]*forward.ForwardFroxy)
+	reverseFroxyMap = make(map[string]*reverse.ReverseFroxy)
+)
 
 func ConfigDashboard(dsbd *config.Dashboard) error {
 	if dsbd == nil {
@@ -36,22 +42,35 @@ func ConfigDashboard(dsbd *config.Dashboard) error {
 	return nil
 }
 
-func ConfigForwardProxies(ffs []*config.ForwardFroxy) error {
-	for _, ff := range ffs {
-		err := registerHTTPServer(ff.Name, httpproxy.ConfigForwardProxyServer(ff))
+func ConfigForwardProxyServers(ffcs []*config.ForwardFroxy) error {
+	for _, ffc := range ffcs {
+		ff := forward.ConfigForwardFroxy(ffc)
+		server := &http.Server{
+			Addr:    ffc.Port,
+			Handler: ff,
+		}
+		err := registerHTTPServer(ffc.Name, server)
 		if err != nil {
 			return err
 		}
+		forwardFroxyMap[ffc.Name] = ff
 	}
 	return nil
 }
 
-func ConfigReverseProxies(rfs []*config.ReverseFroxy) error {
-	for _, rf := range rfs {
-		err := registerHTTPServer(rf.Name, httpproxy.ConfigReverseProxyServer(rf))
+func ConfigReverseProxies(rfcs []*config.ReverseFroxy) error {
+	for _, rfc := range rfcs {
+		rf := reverse.ConfigReverseProxy(rfc)
+		server := &http.Server{
+			Addr:      rfc.Port,
+			Handler:   rf,
+			TLSConfig: rfc.TLSConfig,
+		}
+		err := registerHTTPServer(rfc.Name, server)
 		if err != nil {
 			return err
 		}
+		reverseFroxyMap[rfc.Name] = rf
 	}
 	return nil
 }

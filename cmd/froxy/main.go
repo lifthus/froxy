@@ -18,7 +18,7 @@ func main() {
 	}
 
 	froxysvr.ConfigDashboard(fconfigs.Dashboard)
-	froxysvr.ConfigForwardProxies(fconfigs.ForwardProxyList)
+	froxysvr.ConfigForwardProxyServers(fconfigs.ForwardProxyList)
 	froxysvr.ConfigReverseProxies(fconfigs.ReverseProxyList)
 	log.Fatal(froxysvr.Boot())
 

@@ -9,52 +9,66 @@ import (
 	"strings"
 )
 
-// PlainForwardProxy is a forward proxy, which the feature is developed in plain way.
-type PlainForwardProxy struct {
-	// ForwardChainInfo is a flag to indicate whether to forward the proxy chain info.
-	ForwardChainInfo bool
+func usePlainForwardProxyHandler(ff *ForwardFroxy) *ForwardFroxy {
+	ff.handler = func(w http.ResponseWriter, req *http.Request) {
+		// TODO: log management with on/off switch
+		// log.Println(req.RemoteAddr, "\t", req.Method, "\t", req.URL, "\t Host:", req.Host)
+		// log.Println("\t\t", req.Header)
+
+		if !isAllowed(req, ff.Allowed) {
+			http.Error(w, "forbidden", http.StatusForbidden)
+			return
+		}
+
+		// for https tunneling
+		if req.Method == http.MethodConnect {
+			proxyConnect(w, req)
+			return
+		}
+
+		if !IsSchemeHTTPOrHTTPS(req.URL) {
+			http.Error(w, "unsupported scheme "+req.URL.Scheme, http.StatusBadRequest)
+			return
+		}
+
+		removeHeadersInConnectionHeader(req.Header)
+		removeHopHeaders(req.Header)
+
+		if ff.ForwardChainInfo {
+			appendSenderAddrToXForwaredForHeader(req.Header, req.RemoteAddr)
+			appendSenderAddrToForwardedHeader(req.Header, req)
+		}
+
+		client := &http.Client{}
+		resp, err := client.Do(reqWithClearedRequestURI(req))
+		if err != nil {
+			http.Error(w, "server-side request error", http.StatusInternalServerError)
+			return
+		}
+		defer resp.Body.Close()
+
+		//log.Println(req.RemoteAddr, " ", resp.Status)
+
+		removeHeadersInConnectionHeader(resp.Header)
+		removeHopHeaders(resp.Header)
+
+		copyHeader(w.Header(), resp.Header)
+		w.WriteHeader(resp.StatusCode)
+		io.Copy(w, resp.Body)
+	}
+	return ff
 }
 
-func (pfp PlainForwardProxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	// TODO: log management with on/off switch
-	// log.Println(req.RemoteAddr, "\t", req.Method, "\t", req.URL, "\t Host:", req.Host)
-	// log.Println("\t\t", req.Header)
-
-	// for https tunneling
-	if req.Method == http.MethodConnect {
-		proxyConnect(w, req)
-		return
+func isAllowed(req *http.Request, allowed map[string]struct{}) (ok bool) {
+	if _, ok = allowed["*"]; ok {
+		return true
 	}
-
-	if !IsSchemeHTTPOrHTTPS(req.URL) {
-		http.Error(w, "unsupported scheme "+req.URL.Scheme, http.StatusBadRequest)
-		return
-	}
-
-	removeHeadersInConnectionHeader(req.Header)
-	removeHopHeaders(req.Header)
-
-	if pfp.ForwardChainInfo {
-		appendSenderAddrToXForwaredForHeader(req.Header, req.RemoteAddr)
-		appendSenderAddrToForwardedHeader(req.Header, req)
-	}
-
-	client := &http.Client{}
-	resp, err := client.Do(reqWithClearedRequestURI(req))
+	addr, _, err := net.SplitHostPort(req.RemoteAddr)
 	if err != nil {
-		http.Error(w, "server-side request error", http.StatusInternalServerError)
-		return
+		return false
 	}
-	defer resp.Body.Close()
-
-	//log.Println(req.RemoteAddr, " ", resp.Status)
-
-	removeHeadersInConnectionHeader(resp.Header)
-	removeHopHeaders(resp.Header)
-
-	copyHeader(w.Header(), resp.Header)
-	w.WriteHeader(resp.StatusCode)
-	io.Copy(w, resp.Body)
+	_, ok = allowed[addr]
+	return ok
 }
 
 func IsSchemeHTTPOrHTTPS(url *url.URL) bool {
