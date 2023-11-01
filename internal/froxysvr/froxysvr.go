@@ -11,7 +11,9 @@ import (
 )
 
 var (
-	svrMap = make(map[string]*http.Server)
+	svrMap          = make(map[string]*http.Server)
+	forwardFroxyMap = make(map[string]*forward.ForwardFroxy)
+	reverseFroxyMap = make(map[string]*reverse.ReverseFroxy)
 )
 
 func Boot() error {
@@ -25,11 +27,6 @@ func registerHTTPServer(name string, svr *http.Server) error {
 	svrMap[name] = svr
 	return nil
 }
-
-var (
-	forwardFroxyMap = make(map[string]*forward.ForwardFroxy)
-	reverseFroxyMap = make(map[string]*reverse.ReverseFroxy)
-)
 
 func ConfigDashboard(dsbd *config.Dashboard) error {
 	if dsbd == nil {
