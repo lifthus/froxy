@@ -2,17 +2,11 @@ package reverse
 
 import (
 	"net/http"
-	"net/http/httputil"
 )
 
-type RoundRobinLoadBalancer struct {
-	Targets []struct {
-		Path string
-		To   []string
+func useRoundRobinLoadBalanceHandler(ff *ReverseFroxy) *ReverseFroxy {
+	ff.handler = func(w http.ResponseWriter, req *http.Request) {
+
 	}
-	httputil.ReverseProxy
-}
-
-func (lb RoundRobinLoadBalancer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
+	return ff
 }

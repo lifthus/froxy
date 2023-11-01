@@ -20,5 +20,5 @@ func (rf *ReverseFroxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 func ConfigReverseProxy(rfc *config.ReverseFroxy) *ReverseFroxy {
 	rf := &ReverseFroxy{}
-	return rf
+	return useRoundRobinLoadBalanceHandler(rf)
 }
