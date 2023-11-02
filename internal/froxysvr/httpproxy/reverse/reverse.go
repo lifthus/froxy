@@ -7,7 +7,7 @@ import (
 )
 
 type ReverseFroxy struct {
-	Proxy []*config.ReverseProxySet
+	Proxy map[string]*config.ReverseProxySet
 
 	handler http.HandlerFunc
 }

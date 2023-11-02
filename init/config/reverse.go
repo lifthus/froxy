@@ -12,7 +12,9 @@ type ReverseFroxy struct {
 	Name     string
 	Port     string
 	Insecure bool
-	Proxy    []*ReverseProxySet
+	// Proxy holds each reverse proxy's config.
+	// the key represents the target host.
+	Proxy map[string]*ReverseProxySet
 }
 
 func (rf *ReverseFroxy) GetTLSConfig() *tls.Config {
@@ -27,12 +29,10 @@ func (rf *ReverseFroxy) GetTLSConfig() *tls.Config {
 }
 
 type ReverseProxySet struct {
-	Host        string
 	certificate tls.Certificate
-	Target      []struct {
-		Path string
-		To   []string
-	}
+	// Target holds each reverse proxy's target config.
+	// key represents the target path and value represents the target URL.
+	Target map[string][]string
 }
 
 func configReverseProxyList(ff []froxyfile.ReverseFroxy) (rfs []*ReverseFroxy, err error) {
@@ -61,11 +61,11 @@ func setReverseProxies(insecure bool, rpfs []struct {
 		Path string   `yaml:"path"`
 		To   []string `yaml:"to"`
 	} `yaml:"target"`
-}) ([]*ReverseProxySet, error) {
+}) (map[string]*ReverseProxySet, error) {
 	var err error
-	rpss := make([]*ReverseProxySet, len(rpfs))
+	rpss := make(map[string]*ReverseProxySet)
 
-	for i, rpf := range rpfs {
+	for _, rpf := range rpfs {
 		rps := &ReverseProxySet{}
 		if !insecure && !isKeyPairGiven(&rpf) {
 			rps.certificate, err = helper.SignTLSCertSelf()
@@ -76,13 +76,12 @@ func setReverseProxies(insecure bool, rpfs []struct {
 			return nil, err
 		}
 
-		rps.Host = rpf.Host
-		rps.Target = []struct {
-			Path string
-			To   []string
-		}(rpf.Target)
+		rps.Target = map[string][]string{}
+		for _, t := range rpf.Target {
+			rps.Target[t.Path] = t.To
+		}
 
-		rpss[i] = rps
+		rpss[rpf.Host] = rps
 	}
 	return rpss, nil
 }
