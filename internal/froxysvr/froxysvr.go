@@ -57,14 +57,17 @@ func ConfigForwardProxyServers(ffcs []*config.ForwardFroxy) error {
 
 func ConfigReverseProxies(rfcs []*config.ReverseFroxy) error {
 	for _, rfc := range rfcs {
-		rf := reverse.ConfigReverseProxy(rfc)
+		rf, err := reverse.ConfigReverseProxy(rfc.Proxy)
+		if err != nil {
+			return err
+		}
 		server := &http.Server{
 			Addr:      rfc.Port,
 			Handler:   rf,
 			TLSConfig: rfc.GetTLSConfig(),
 		}
 
-		err := registerHTTPServer(rfc.Name, server)
+		err = registerHTTPServer(rfc.Name, server)
 		if err != nil {
 			return err
 		}
