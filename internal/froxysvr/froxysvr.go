@@ -41,7 +41,7 @@ func ConfigDashboard(dsbd *config.Dashboard) error {
 
 func ConfigForwardProxyServers(ffcs []*config.ForwardFroxy) error {
 	for _, ffc := range ffcs {
-		ff := forward.ConfigForwardFroxy(ffc)
+		ff := forward.ConfigForwardFroxy(ffc.Allowed)
 		server := &http.Server{
 			Addr:    ffc.Port,
 			Handler: ff,

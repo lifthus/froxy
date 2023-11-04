@@ -2,8 +2,6 @@ package forward
 
 import (
 	"net/http"
-
-	"github.com/lifthus/froxy/init/config"
 )
 
 type ForwardFroxy struct {
@@ -20,9 +18,9 @@ func (ff *ForwardFroxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	ff.handler(w, req)
 }
 
-func ConfigForwardFroxy(ffc *config.ForwardFroxy) *ForwardFroxy {
+func ConfigForwardFroxy(allowed []string) *ForwardFroxy {
 	ff := &ForwardFroxy{
-		Allowed:          strSliceToMap(ffc.Allowed),
+		Allowed:          strSliceToMap(allowed),
 		ForwardChainInfo: false,
 	}
 	return usePlainForwardProxyHandler(ff)
