@@ -11,7 +11,15 @@ type ReverseFroxy struct {
 	// HostProxyMap maps host to basepath matcher, which maps basepath to proper ProxyTarget.
 	HostProxyMap map[string]*pathmatch.Matcher[*ProxyTarget]
 
-	handler http.HandlerFunc
+	handler http.Handler
+}
+
+func (rf *ReverseFroxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	if rf.handler == nil {
+		http.Error(w, "proxy strategy not set", http.StatusInternalServerError)
+		return
+	}
+	rf.ServeHTTP(w, req)
 }
 
 type ProxyTarget struct {
@@ -20,12 +28,10 @@ type ProxyTarget struct {
 	Targets []string
 }
 
-func (rf *ReverseFroxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	if rf.handler == nil {
-		http.Error(w, "proxy strategy not set", http.StatusInternalServerError)
-		return
-	}
-	rf.handler(w, req)
+func (pt *ProxyTarget) NextTargetURL(path string) string {
+	curTarget := pt.Targets[pt.Cnt]
+	pt.Cnt = (pt.Cnt + 1) % pt.Len
+	return curTarget + path
 }
 
 func ConfigReverseProxy(rpsm map[string]*config.ReverseProxySet) (*ReverseFroxy, error) {
