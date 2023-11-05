@@ -23,12 +23,15 @@ func (rf *ReverseFroxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	rf.ServeHTTP(w, req)
 }
 
+// ProxyTarget is the target of specific path.
 type ProxyTarget struct {
 	Len     int
 	Cnt     int
 	Targets []*url.URL
 }
 
+// NextTargetURL returns the target url based on round robin strategy.
+// Locking mechanism isn't applied, so that it may not perfectly distribute the requests.
 func (pt *ProxyTarget) NextTargetURL() (targetURL *url.URL) {
 	target := pt.Targets[pt.Cnt]
 	pt.Cnt = (pt.Cnt + 1) % pt.Len
