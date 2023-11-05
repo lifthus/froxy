@@ -2,6 +2,7 @@ package reverse
 
 import (
 	"net/http"
+	"net/url"
 )
 
 func useRoundRobinLoadBalanceHandler(ff *ReverseFroxy) *ReverseFroxy {
@@ -12,13 +13,16 @@ func useRoundRobinLoadBalanceHandler(ff *ReverseFroxy) *ReverseFroxy {
 			http.Error(w, "host not found", http.StatusNotFound)
 			return
 		}
-
-		proxyTarget, path, ok := matcher.Match(req.URL.Path)
+		proxyTarget, _, ok := matcher.Match(req.URL.Path)
 		if !ok {
 			http.Error(w, "path not found", http.StatusNotFound)
 			return
 		}
-		_ = proxyTarget.NextTargetURL(path)
+		_ = proxyTarget.NextTargetURL()
 	})
 	return ff
+}
+
+func rewriteRequestURL(req *http.Request, target *url.URL) {
+
 }

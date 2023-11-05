@@ -2,6 +2,7 @@ package reverse
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/lifthus/froxy/init/config"
 	"github.com/lifthus/pathmatch"
@@ -25,13 +26,13 @@ func (rf *ReverseFroxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 type ProxyTarget struct {
 	Len     int
 	Cnt     int
-	Targets []string
+	Targets []*url.URL
 }
 
-func (pt *ProxyTarget) NextTargetURL(path string) string {
-	curTarget := pt.Targets[pt.Cnt]
+func (pt *ProxyTarget) NextTargetURL() (targetURL *url.URL) {
+	target := pt.Targets[pt.Cnt]
 	pt.Cnt = (pt.Cnt + 1) % pt.Len
-	return curTarget + path
+	return target
 }
 
 func ConfigReverseProxy(rpsm map[string]*config.ReverseProxySet) (*ReverseFroxy, error) {
@@ -50,10 +51,14 @@ func ConfigReverseProxy(rpsm map[string]*config.ReverseProxySet) (*ReverseFroxy,
 func newBasepathMatcher(pathTargets map[string][]string) (*pathmatch.Matcher[*ProxyTarget], error) {
 	pathProxyTargetMap := make(map[string]*ProxyTarget)
 	for path, targets := range pathTargets {
+		urls, err := stringsToURLs(targets)
+		if err != nil {
+			return nil, err
+		}
 		pathProxyTargetMap[path] = &ProxyTarget{
 			Len:     len(targets),
 			Cnt:     0,
-			Targets: targets,
+			Targets: urls,
 		}
 	}
 	matcher, err := pathmatch.NewPathMatcher[*ProxyTarget](pathProxyTargetMap)
@@ -61,4 +66,16 @@ func newBasepathMatcher(pathTargets map[string][]string) (*pathmatch.Matcher[*Pr
 		return nil, err
 	}
 	return matcher, nil
+}
+
+func stringsToURLs(strurls []string) ([]*url.URL, error) {
+	urls := make([]*url.URL, len(strurls))
+	for i, strurl := range strurls {
+		url, err := url.Parse(strurl)
+		if err != nil {
+			return nil, err
+		}
+		urls[i] = url
+	}
+	return urls, nil
 }
