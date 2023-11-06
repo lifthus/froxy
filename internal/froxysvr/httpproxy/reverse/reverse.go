@@ -10,7 +10,7 @@ import (
 
 type ReverseFroxy struct {
 	// HostProxyMap maps host to basepath matcher, which maps basepath to proper ProxyTarget.
-	HostProxyMap map[string]*pathmatch.Matcher[*ProxyTarget]
+	HostProxyMap HostProxyMap
 
 	handler http.Handler
 }
@@ -21,6 +21,13 @@ func (rf *ReverseFroxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	rf.ServeHTTP(w, req)
+}
+
+type HostProxyMap map[string]*pathmatch.Matcher[*ProxyTarget]
+
+func (hpm HostProxyMap) MatchHost(host string) (matcher *pathmatch.Matcher[*ProxyTarget], ok bool) {
+	matcher, ok = hpm[host]
+	return
 }
 
 // ProxyTarget is the target of specific path.
