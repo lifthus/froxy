@@ -21,7 +21,8 @@ func useRoundRobinLoadBalanceHandler(ff *ReverseFroxy) *ReverseFroxy {
 	ff.handler = http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
 
-		matcher, ok := hpm.MatchHost(req.Host)
+		host, _, _ := net.SplitHostPort(req.Host)
+		matcher, ok := hpm.MatchHost(host)
 		if !ok {
 			http.Error(w, "host not found", http.StatusNotFound)
 			return
