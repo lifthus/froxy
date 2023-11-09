@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"regexp"
-	"strings"
 
 	"github.com/lifthus/froxy/internal/froxyfile"
 	"github.com/lifthus/froxy/pkg/helper"
@@ -37,6 +36,10 @@ func configDashboard(ff *froxyfile.Dashboard) (dsbd *Dashboard, err error) {
 	}
 	dsbd.RootID = ff.Root.ID
 	dsbd.RootPW = ff.Root.PW
+	if ff.Port == nil {
+		tmpport := ":8542"
+		ff.Port = &tmpport
+	}
 	if dsbd.Port, err = validateAndFormatPort(ff.Port); err != nil {
 		return nil, err
 	}
@@ -69,18 +72,4 @@ func validateRootCredentials(rootID, rootPW string) error {
 		return fmt.Errorf("root password must be 6~100 characters(only digits, english alphabets and at least one between _!@#$%%^&*) long")
 	}
 	return nil
-}
-
-func validateAndFormatPort(pPort *string) (string, error) {
-	port := ":8542"
-	if pPort != nil {
-		port = *pPort
-	}
-	portMatched, err := regexp.MatchString("^:?\\d{1,5}$", port)
-	if err != nil {
-		return "", err
-	} else if !portMatched {
-		return "", fmt.Errorf("port number must be 1~5 digits long")
-	}
-	return ":" + strings.TrimPrefix(port, ":"), nil
 }

@@ -40,7 +40,10 @@ func configReverseProxyList(ff []froxyfile.ReverseFroxy) (rfs []*ReverseFroxy, e
 	for i, f := range ff {
 		rf := &ReverseFroxy{}
 		rf.Name = f.Name
-		rf.Port = f.Port
+		rf.Port, err = validateAndFormatPort(&f.Port)
+		if err != nil {
+			return nil, err
+		}
 		rf.Insecure = f.Insecure
 		rf.Proxy, err = setReverseProxies(f.Insecure, f.Proxy)
 		if err != nil {

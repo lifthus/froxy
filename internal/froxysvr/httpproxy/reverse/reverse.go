@@ -20,7 +20,7 @@ func (rf *ReverseFroxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "proxy strategy not set", http.StatusInternalServerError)
 		return
 	}
-	rf.ServeHTTP(w, req)
+	rf.handler.ServeHTTP(w, req)
 }
 
 type HostProxyMap map[string]*pathmatch.Matcher[*ProxyTarget]

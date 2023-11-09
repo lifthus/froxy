@@ -10,9 +10,14 @@ type ForwardFroxy struct {
 }
 
 func configForwardProxyList(ff []froxyfile.ForwardFroxy) ([]*ForwardFroxy, error) {
+	var err error
 	fs := make([]*ForwardFroxy, len(ff))
 	for i, f := range ff {
 		cf := ForwardFroxy(f)
+		cf.Port, err = validateAndFormatPort(&cf.Port)
+		if err != nil {
+			return nil, err
+		}
 		fs[i] = &cf
 	}
 	return fs, nil

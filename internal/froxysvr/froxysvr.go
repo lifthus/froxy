@@ -1,7 +1,9 @@
 package froxysvr
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/lifthus/froxy/init/config"
@@ -17,7 +19,24 @@ var (
 )
 
 func Boot() error {
-	return nil
+	var errChan = make(chan error)
+	for name, svr := range svrMap {
+		log.Printf("server %s listening on port:%s", name, svr.Addr)
+		go func(svr *http.Server) {
+			if svr.TLSConfig != nil {
+				errChan <- svr.ListenAndServeTLS("", "")
+			} else {
+				errChan <- svr.ListenAndServe()
+			}
+		}(svr)
+	}
+	err := <-errChan
+	if err != nil {
+		for _, svr := range svrMap {
+			svr.Shutdown(context.Background())
+		}
+	}
+	return err
 }
 
 func registerHTTPServer(name string, svr *http.Server) error {
