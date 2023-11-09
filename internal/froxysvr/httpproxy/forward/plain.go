@@ -10,7 +10,7 @@ import (
 )
 
 func usePlainForwardProxyHandler(ff *ForwardFroxy) *ForwardFroxy {
-	ff.handler = func(w http.ResponseWriter, req *http.Request) {
+	ff.handler = http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		// TODO: log management with on/off switch
 		// log.Println(req.RemoteAddr, "\t", req.Method, "\t", req.URL, "\t Host:", req.Host)
 		// log.Println("\t\t", req.Header)
@@ -53,7 +53,7 @@ func usePlainForwardProxyHandler(ff *ForwardFroxy) *ForwardFroxy {
 		copyHeader(w.Header(), resp.Header)
 		w.WriteHeader(resp.StatusCode)
 		io.Copy(w, resp.Body)
-	}
+	})
 	return ff
 }
 

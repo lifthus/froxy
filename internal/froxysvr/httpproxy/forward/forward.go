@@ -7,7 +7,7 @@ import (
 type ForwardFroxy struct {
 	Allowed          map[string]struct{}
 	ForwardChainInfo bool
-	handler          http.HandlerFunc
+	handler          http.Handler
 }
 
 func (ff *ForwardFroxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -15,7 +15,7 @@ func (ff *ForwardFroxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "proxy strategy not set", http.StatusInternalServerError)
 		return
 	}
-	ff.handler(w, req)
+	ff.handler.ServeHTTP(w, req)
 }
 
 func ConfigForwardFroxy(allowed []string) *ForwardFroxy {

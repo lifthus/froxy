@@ -18,4 +18,3 @@ reverse: # reverse proxy config
           - path: / # all requests to abc.com will be forwarded to the url specified in "to" property below.
             to:
               - http://127.0.0.1:9595
-              - http://127.0.0.1:9596
