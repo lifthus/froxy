@@ -7,14 +7,6 @@ dashboard:
   tls:
     cert: ./cert.pem
     key: ./key.pem
-forward:
-  - name: forward-froxy # name to identify the proxy
-    port: 8543 # port to listen on
-    # allowed is a list of IP addrs allowed to use the forward proxy, without authentication.
-    # You can allow some IP addrs to use the proxy without enabling web dashboard.
-    # note that localhost is always allowed.
-    allowed:
-      - "*" # all IP addrs are allowed
 # reverse is config list of reverse proxies.
 reverse: # reverse proxy config
   - name: example-reverse
@@ -26,3 +18,4 @@ reverse: # reverse proxy config
           - path: / # all requests to abc.com will be forwarded to the url specified in "to" property below.
             to:
               - http://127.0.0.1:9595
+              - http://127.0.0.1:9596

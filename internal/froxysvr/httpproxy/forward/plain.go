@@ -3,7 +3,6 @@ package forward
 import (
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"net/http"
 	"net/url"
@@ -20,13 +19,11 @@ func usePlainForwardProxyHandler(ff *ForwardFroxy) *ForwardFroxy {
 			http.Error(w, "forbidden", http.StatusForbidden)
 			return
 		}
-		log.Println("LALA")
 		// for https tunneling
 		if req.Method == http.MethodConnect {
 			proxyConnect(w, req)
 			return
 		}
-		log.Println("LALAasdffasd")
 		if !IsSchemeHTTPOrHTTPS(req.URL) {
 			http.Error(w, "unsupported scheme "+req.URL.Scheme, http.StatusBadRequest)
 			return
