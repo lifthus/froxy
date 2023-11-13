@@ -39,10 +39,10 @@ type ProxyTarget struct {
 
 // NextTargetURL returns the target url based on round robin strategy.
 // Locking mechanism isn't applied, so that it may not perfectly distribute the requests.
-func (pt *ProxyTarget) NextTargetURL() (targetURL *url.URL) {
+func (pt *ProxyTarget) NextTargetURL(path string) (targetURL *url.URL) {
 	target := pt.Targets[pt.Cnt]
 	pt.Cnt = (pt.Cnt + 1) % pt.Len
-	return target
+	return target.JoinPath(path)
 }
 
 func ConfigReverseProxy(rpsm map[string]*config.ReverseProxySet) (*ReverseFroxy, error) {

@@ -20,14 +20,6 @@ func useRoundRobinLoadBalanceHandler(ff *ReverseFroxy) *ReverseFroxy {
 	hpm := ff.HostProxyMap
 	ff.handler = http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
-
-		host, _, _ := net.SplitHostPort(req.Host)
-		matcher, ok := hpm.MatchHost(host)
-		if !ok {
-			http.Error(w, "host not found", http.StatusNotFound)
-			return
-		}
-
 		outreq := req.Clone(ctx)
 		if req.ContentLength == 0 {
 			// Issue 16036: https://github.com/golang/go/issues/16036
@@ -51,14 +43,18 @@ func useRoundRobinLoadBalanceHandler(ff *ReverseFroxy) *ReverseFroxy {
 			outreq.Header = make(http.Header)
 		}
 
+		host, _, splErr := net.SplitHostPort(req.Host)
+		matcher, ok := hpm.MatchHost(host)
+		if !ok {
+			http.Error(w, "host not found", http.StatusNotFound)
+			return
+		}
 		proxyTarget, path, ok := matcher.Match(req.URL.Path)
 		if !ok {
 			http.Error(w, "path not found", http.StatusNotFound)
 			return
 		}
-		targetURL := proxyTarget.NextTargetURL()
-		targetURL = targetURL.JoinPath(path)
-
+		targetURL := proxyTarget.NextTargetURL(path)
 		rewriteReqURLToTarget(outreq, targetURL)
 
 		if outreq.Form != nil {
@@ -90,17 +86,17 @@ func useRoundRobinLoadBalanceHandler(ff *ReverseFroxy) *ReverseFroxy {
 			outreq.Header.Set("Upgrade", reqUpgType)
 		}
 
-		if clientIP, _, err := net.SplitHostPort(req.RemoteAddr); err == nil {
+		if splErr == nil {
 			// If we aren't the first proxy retain prior
 			// X-Forwarded-For information as a comma+space
 			// separated list and fold multiple headers into one.
 			prior, ok := outreq.Header["X-Forwarded-For"]
 			omit := ok && prior == nil // Issue 38079: nil now means don't populate the header
 			if len(prior) > 0 {
-				clientIP = strings.Join(prior, ", ") + ", " + clientIP
+				host = strings.Join(prior, ", ") + ", " + host
 			}
 			if !omit {
-				outreq.Header.Set("X-Forwarded-For", clientIP)
+				outreq.Header.Set("X-Forwarded-For", host)
 			}
 		}
 
@@ -237,6 +233,7 @@ func singleJoiningSlash(a, b string) string {
 	return a + b
 }
 
+// cleanQueryParams removes invalid query params and returns all valid query params.
 func cleanQueryParams(s string) string {
 	for i := 0; i < len(s); {
 		switch s[i] {
@@ -340,7 +337,6 @@ func tokenEqual(t1, t2 string) bool {
 	return true
 }
 
-// lowerASCII returns the ASCII lowercase version of b.
 func lowerASCII(b byte) byte {
 	if 'A' <= b && b <= 'Z' {
 		return b + ('a' - 'A')
