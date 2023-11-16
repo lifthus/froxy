@@ -1,24 +1,12 @@
-# froxy
-
-HTTP, HTTPS 상에서 다양한 기능을 제공하는 프록시 서버 애플리케이션.
-다음 기능들을 커맨드와 옵션 플래그 한 두 개로 간단히 사용할 수 있다.
-
-- 포워드 프록시
-- 리버스 프록시
-- 로드 밸런서
-
-## Installation
-
-```
-  go install github.com/lifthus/froxy/cmd/froxy@latest
-```
-
-## Usage
-
-커맨드를 실행하는 현재 디렉토리에 "froxyfile"이라는 이름의 설정 파일을 다음 예시를 참고해서 작성한다.
-이후 커맨드를 실행하면 설정에 따라 프록시 서버들이 설정되고 실행된다.
-
-```yml
+dashboard:
+  port: 8542 # 8542 is default.
+  root: # root user config. it must be given to enable web dashboard.
+    id: admin # root user id
+    pw: "!@#$%^&*" # root user password
+  # HTTPS is mandatory for web dashboard, so if "tls" not set, froxy automatically generates self-signed key pair for HTTPS.
+  tls:
+    cert: ./cert.pem
+    key: ./key.pem
 # forward is config list of forward proxies.
 forward:
   - name: forward-froxy # name to identify the proxy
@@ -50,4 +38,3 @@ reverse: # reverse proxy config
             to: # if you provide multiple urls, the reverse proxy automatically works as a round-robin load balancer.
               - http://127.0.0.1:8547
               - http://127.0.0.1:8548
-```

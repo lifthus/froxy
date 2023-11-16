@@ -5,13 +5,28 @@ import (
 	"log"
 	"net/url"
 
-	"github.com/lifthus/froxy/init/args"
+	"github.com/lifthus/froxy/init/config"
+	"github.com/lifthus/froxy/internal/froxysvr"
 	"github.com/lifthus/froxy/internal/httpproxy"
 	"github.com/lifthus/froxy/internal/httpproxy/proxyhandler"
 )
 
 func main() {
-	args, err := args.InitArgsAndTargets()
+	fconfigs, err := config.InitConfig()
+	if err != nil {
+		log.Fatalf("initializing froxy failed: %v", err)
+	}
+
+	froxysvr.ConfigDashboard(fconfigs.Dashboard)
+	froxysvr.ConfigForwardProxyServers(fconfigs.ForwardProxyList)
+	froxysvr.ConfigReverseProxies(fconfigs.ReverseProxyList)
+	log.Fatal(froxysvr.Boot())
+
+	if err != nil {
+		log.Fatalf("starting froxy failed: %v", err)
+	}
+
+	args, err := config.InitArgsAndTargets()
 	if err != nil {
 		log.Fatalf("initializing froxy failed: %v", err)
 	}

@@ -1,11 +1,11 @@
 package httpproxy
 
 import (
-	"github.com/lifthus/froxy/init/args"
+	"github.com/lifthus/froxy/init/config"
 	"github.com/lifthus/froxy/internal/httpproxy/proxyhandler"
 )
 
-func NewHttpProxyServer(secure *args.Secure, port string, proxyHandler *proxyhandler.ProxyHandler) (*HttpProxyServer, error) {
+func NewHttpProxyServer(secure *config.Secure, port string, proxyHandler *proxyhandler.ProxyHandler) (*HttpProxyServer, error) {
 	server := NewHttpServerWithProxy(port, proxyHandler)
 	if secure != nil {
 		server = NewHttpsServerWithProxy(*secure, port, proxyHandler)
