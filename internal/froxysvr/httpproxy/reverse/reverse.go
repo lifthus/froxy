@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/lifthus/froxy/init/config"
+	"github.com/lifthus/froxy/internal/config"
 	"github.com/lifthus/pathmatch"
 )
 

@@ -1,6 +1,6 @@
 package config
 
-import "github.com/lifthus/froxy/internal/froxyfile"
+import "github.com/lifthus/froxy/internal/config/froxyfile"
 
 // ForwardFroxy holds each forward proxy's config
 type ForwardFroxy struct {

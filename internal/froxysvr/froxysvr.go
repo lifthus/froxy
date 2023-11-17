@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/lifthus/froxy/init/config"
+	"github.com/lifthus/froxy/internal/config"
 	"github.com/lifthus/froxy/internal/froxysvr/dashboard"
 	"github.com/lifthus/froxy/internal/froxysvr/httpproxy/forward"
 	"github.com/lifthus/froxy/internal/froxysvr/httpproxy/reverse"

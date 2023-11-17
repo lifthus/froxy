@@ -3,7 +3,7 @@ package config
 import (
 	"crypto/tls"
 
-	"github.com/lifthus/froxy/internal/froxyfile"
+	"github.com/lifthus/froxy/internal/config/froxyfile"
 	"github.com/lifthus/froxy/pkg/helper"
 )
 

@@ -3,7 +3,7 @@ package dashboard
 import (
 	"net/http"
 
-	"github.com/lifthus/froxy/init/config"
+	"github.com/lifthus/froxy/internal/config"
 )
 
 func ConfigDashboardServer(dashboard *config.Dashboard) *http.Server {
