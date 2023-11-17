@@ -1,4 +1,4 @@
-package reverse
+package httpreverse
 
 import (
 	"net/url"

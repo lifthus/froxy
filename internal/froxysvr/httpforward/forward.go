@@ -1,4 +1,4 @@
-package forward
+package httpforward
 
 import (
 	"net/http"

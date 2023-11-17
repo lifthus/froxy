@@ -7,15 +7,15 @@ import (
 	"net/http"
 
 	"github.com/lifthus/froxy/internal/config"
-	"github.com/lifthus/froxy/internal/froxysvr/dashboard"
-	"github.com/lifthus/froxy/internal/froxysvr/httpproxy/forward"
-	"github.com/lifthus/froxy/internal/froxysvr/httpproxy/reverse"
+	"github.com/lifthus/froxy/internal/dashboard"
+	"github.com/lifthus/froxy/internal/froxysvr/httpforward"
+	"github.com/lifthus/froxy/internal/froxysvr/httpreverse"
 )
 
 var (
 	svrMap          = make(map[string]*http.Server)
-	forwardFroxyMap = make(map[string]*forward.ForwardFroxy)
-	reverseFroxyMap = make(map[string]*reverse.ReverseFroxy)
+	forwardFroxyMap = make(map[string]*httpforward.ForwardFroxy)
+	reverseFroxyMap = make(map[string]*httpreverse.ReverseFroxy)
 )
 
 func Boot() error {
@@ -60,7 +60,7 @@ func ConfigDashboard(dsbd *config.Dashboard) error {
 
 func ConfigForwardProxyServers(ffcs []*config.ForwardFroxy) error {
 	for _, ffc := range ffcs {
-		ff := forward.ConfigForwardFroxy(ffc.Allowed)
+		ff := httpforward.ConfigForwardFroxy(ffc.Allowed)
 		server := &http.Server{
 			Addr:    ffc.Port,
 			Handler: ff,
@@ -76,7 +76,7 @@ func ConfigForwardProxyServers(ffcs []*config.ForwardFroxy) error {
 
 func ConfigReverseProxies(rfcs []*config.ReverseFroxy) error {
 	for _, rfc := range rfcs {
-		rf, err := reverse.ConfigReverseProxy(rfc.Proxy)
+		rf, err := httpreverse.ConfigReverseProxy(rfc.Proxy)
 		if err != nil {
 			return err
 		}
