@@ -2,23 +2,28 @@ package froxyfile
 
 import (
 	"errors"
+	"io"
 	"os"
 
 	"gopkg.in/yaml.v3"
+)
+
+var (
+	froxyfilePath string
 )
 
 func Load(paths ...string) (*FroxyfileConfig, error) {
 	if len(paths) == 0 {
 		paths = []string{"froxyfile", "froxyfile.yml", "froxyfile.yaml"}
 	}
-	ffb, err := tryOpeningAndReadFroxyfile(paths)
+	ffb, err := openAndReadFroxyfile(paths)
 	if err != nil {
 		return nil, err
 	}
 	return parse(ffb)
 }
 
-func tryOpeningAndReadFroxyfile(paths []string) ([]byte, error) {
+func openAndReadFroxyfile(paths []string) ([]byte, error) {
 	var err error
 	var ff *os.File
 	for i, path := range paths {
@@ -28,14 +33,17 @@ func tryOpeningAndReadFroxyfile(paths []string) ([]byte, error) {
 		} else if err != nil {
 			return nil, err
 		}
+		defer ff.Close()
+
+		// once any config file is read, break and use that config.
+		froxyfilePath = path
 		break
 	}
-	ffb := make([]byte, 1000000)
-	if n, err := ff.Read(ffb); err != nil {
+	ffb, err := io.ReadAll(ff)
+	if err != nil {
 		return nil, err
-	} else {
-		return ffb[:n], nil
 	}
+	return ffb, nil
 }
 
 func parse(ffb []byte) (*FroxyfileConfig, error) {
@@ -45,4 +53,22 @@ func parse(ffb []byte) (*FroxyfileConfig, error) {
 		return nil, err
 	}
 	return ffconfig, nil
+}
+
+func Write(ffc *FroxyfileConfig) error {
+	ffb, err := yaml.Marshal(ffc)
+	if err != nil {
+		return err
+	}
+	ff, err := os.OpenFile(froxyfilePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+	if err != nil {
+		return err
+	}
+	defer ff.Close()
+
+	_, err = ff.Write(ffb)
+	if err != nil {
+		return err
+	}
+	return nil
 }
