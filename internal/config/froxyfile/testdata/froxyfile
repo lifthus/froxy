@@ -1,5 +1,6 @@
 dashboard:
   port: 8542 # 8542 is default.
+  host: 123.123.123.123 # dashboard host as an IP addr or domain name
   # HTTPS is mandatory for web dashboard, so if "tls" not set, froxy automatically generates self-signed key pair for HTTPS.
   tls:
     cert: ./cert.pem

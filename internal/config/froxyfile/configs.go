@@ -10,11 +10,8 @@ type FroxyfileConfig struct {
 // Dashboard holds the dashboard's config
 type Dashboard struct {
 	Port *string `yaml:"port"`
-	Root struct {
-		ID string `yaml:"id"`
-		PW string `yaml:"pw"`
-	} `yaml:"root"`
-	TLS *struct {
+	Host string  `yaml:"host"`
+	TLS  *struct {
 		Cert string `yaml:"cert"`
 		Key  string `yaml:"key"`
 	} `yaml:"tls"`
