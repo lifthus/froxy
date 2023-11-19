@@ -1,4 +1,4 @@
-package config
+package froxycrypt
 
 import "testing"
 
@@ -10,7 +10,7 @@ func TestValidateRootCredentials(t *testing.T) {
 		"qwerqrew": "qwer1234!@#$_",
 	}
 	for id, pw := range idpw {
-		if err := validateRootCredentials(id, pw); err != nil {
+		if err := ValidateRootCredentials(id, pw); err != nil {
 			t.Errorf("validateRootCredentials(%s, %s) should be valid:%s", id, pw, err)
 		}
 	}
@@ -21,7 +21,7 @@ func TestValidateRootCredentials(t *testing.T) {
 		"1qwerqrew": "qwer1234!@#$_",
 	}
 	for id, pw := range idpw {
-		if err := validateRootCredentials(id, pw); err == nil {
+		if err := ValidateRootCredentials(id, pw); err == nil {
 			t.Errorf("validateRootCredentials(%s, %s) should be valid:%s", id, pw, err)
 		}
 	}
