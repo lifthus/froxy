@@ -1,8 +1,6 @@
 package config
 
 import (
-	"net/url"
-
 	"github.com/lifthus/froxy/internal/config/froxyfile"
 )
 
@@ -12,8 +10,10 @@ type FroxyConfig struct {
 	ReverseProxyList []*ReverseFroxy
 }
 
+// InitConfig parses the froxyfile and returns the FroxyConfig struct.
+// It should be called from main,
+// and may be called when the froxyfile config is modified.
 func InitConfig() (*FroxyConfig, error) {
-
 	fconfig := &FroxyConfig{}
 	var err error
 
@@ -35,16 +35,4 @@ func InitConfig() (*FroxyConfig, error) {
 	}
 
 	return fconfig, nil
-}
-
-type Args struct {
-	Secure          *Secure
-	Port            string
-	Target          *url.URL
-	LoadBalanceList []*url.URL
-}
-
-type Secure struct {
-	Cert string
-	Key  string
 }
