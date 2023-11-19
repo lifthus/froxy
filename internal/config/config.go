@@ -7,10 +7,7 @@ import (
 )
 
 type FroxyConfig struct {
-	// Dashboard holds the configuration for the web dashboard.
-	// If nil, the web dashboard isn't provided(still Froxy will work with froxyfile configurations).
-	Dashboard *Dashboard
-
+	Dashboard        *Dashboard
 	ForwardProxyList []*ForwardFroxy
 	ReverseProxyList []*ReverseFroxy
 }
