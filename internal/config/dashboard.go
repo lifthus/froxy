@@ -6,14 +6,10 @@ import (
 	"regexp"
 
 	"github.com/lifthus/froxy/internal/config/froxyfile"
-	"github.com/lifthus/froxy/pkg/helper"
+	"github.com/lifthus/froxy/pkg/froxycrypt"
 )
 
 type Dashboard struct {
-	// RootID identifies the root user, with which the user can sign in to the web dashboard as an admin.
-	// To enable the web dashboard, root user configurations MUST be provided.
-	RootID string
-	RootPW string
 	// Port is the port number for the web dashboard. default is :8542.
 	Port string
 	// Certificate holds the HTTPS Certificate for the dashboard.
@@ -28,34 +24,22 @@ func (ds Dashboard) GetTLSConfig() *tls.Config {
 
 func configDashboard(ff *froxyfile.Dashboard) (dsbd *Dashboard, err error) {
 	dsbd = &Dashboard{}
-	if isDashboardDisabled(ff) {
-		return nil, nil
-	}
-	if err := validateRootCredentials(ff.Root.ID, ff.Root.PW); err != nil {
-		return nil, err
-	}
-	dsbd.RootID = ff.Root.ID
-	dsbd.RootPW = ff.Root.PW
 	if ff.Port == nil {
-		tmpport := ":8542"
-		ff.Port = &tmpport
+		p := ":8542"
+		ff.Port = &p
 	}
 	if dsbd.Port, err = validateAndFormatPort(ff.Port); err != nil {
 		return nil, err
 	}
 	if ff.TLS != nil {
-		dsbd.certificate, err = helper.LoadTLSCert(ff.TLS.Cert, ff.TLS.Key)
+		dsbd.certificate, err = froxycrypt.LoadTLSCert(ff.TLS.Cert, ff.TLS.Key)
 	} else {
-		dsbd.certificate, err = helper.SignTLSCertSelf()
+		dsbd.certificate, err = froxycrypt.SignTLSCertSelf()
 	}
 	if err != nil {
 		return nil, err
 	}
 	return dsbd, nil
-}
-
-func isDashboardDisabled(ff *froxyfile.Dashboard) bool {
-	return ff == nil
 }
 
 func validateRootCredentials(rootID, rootPW string) error {

@@ -1,4 +1,4 @@
-package helper
+package froxycrypt
 
 import (
 	"crypto/tls"
