@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+// VaildateAndFormatPort validates and formats the port number like ":8546".
+// The input doesn't have to be prefixed with ":", but the output will be.
 func ValidateAndFormatPort(port string) (string, error) {
 	port = strings.TrimPrefix(port, ":")
 	portMatched, err := regexp.MatchString("^:?\\d{1,5}$", port)
