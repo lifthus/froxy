@@ -8,6 +8,17 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+type FroxyfileConfig struct {
+	Dashboard   *Dashboard     `yaml:"dashboard"`
+	ForwardList []ForwardProxy `yaml:"forward"`
+	ReverseList []ReverseProxy `yaml:"reverse"`
+}
+
+type TLSKeyPair struct {
+	Cert string `yaml:"cert"`
+	Key  string `yaml:"key"`
+}
+
 var (
 	froxyfilePath string
 )

@@ -15,11 +15,11 @@ type Dashboard struct {
 	// Certificate holds the HTTPS Certificate for the dashboard.
 	// HTTPS is mandatory for using the web dashboard.
 	// If you don't provide key pair, Froxy will generate self-signed key pair for itself.
-	certificate tls.Certificate
+	cert tls.Certificate
 }
 
 func (ds Dashboard) GetTLSConfig() *tls.Config {
-	return &tls.Config{Certificates: []tls.Certificate{ds.certificate}}
+	return &tls.Config{Certificates: []tls.Certificate{ds.cert}}
 }
 
 func configDashboard(ff *froxyfile.Dashboard) (dsbd *Dashboard, err error) {
@@ -34,9 +34,9 @@ func configDashboard(ff *froxyfile.Dashboard) (dsbd *Dashboard, err error) {
 		return nil, err
 	}
 	if ff.TLS != nil {
-		dsbd.certificate, err = froxycrypt.LoadTLSCert(ff.TLS.Cert, ff.TLS.Key)
+		dsbd.cert, err = froxycrypt.LoadTLSCert(ff.TLS.Cert, ff.TLS.Key)
 	} else {
-		dsbd.certificate, err = froxycrypt.SignTLSCertSelf(ff.Host)
+		dsbd.cert, err = froxycrypt.SignTLSCertSelf([]string{ff.Host})
 	}
 	if err != nil {
 		return nil, err
