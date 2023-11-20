@@ -1,12 +1,13 @@
 package dashboard
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/lifthus/froxy/internal/config"
 )
 
-func ConfigDashboardServer(dashboard *config.Dashboard) *http.Server {
+func BootDashboard(dashboard *config.Dashboard) {
 	mux := http.NewServeMux()
 	mux = MuxDashboardAPI(mux)
 	server := &http.Server{
@@ -14,5 +15,9 @@ func ConfigDashboardServer(dashboard *config.Dashboard) *http.Server {
 		Handler:   mux,
 		TLSConfig: dashboard.GetTLSConfig(),
 	}
-	return server
+	go func() {
+		if err := server.ListenAndServeTLS("", ""); err != nil {
+			log.Fatalf("failed to boot dashboard: %v", err)
+		}
+	}()
 }

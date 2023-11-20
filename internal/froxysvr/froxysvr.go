@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/lifthus/froxy/internal/config"
-	"github.com/lifthus/froxy/internal/dashboard"
 	"github.com/lifthus/froxy/internal/froxysvr/httpforward"
 	"github.com/lifthus/froxy/internal/froxysvr/httpreverse"
 )
@@ -44,17 +43,6 @@ func registerHTTPServer(name string, svr *http.Server) error {
 		return fmt.Errorf("server %s already registered", name)
 	}
 	svrMap[name] = svr
-	return nil
-}
-
-func ConfigDashboard(dsbd *config.Dashboard) error {
-	if dsbd == nil {
-		return nil
-	}
-	err := registerHTTPServer("Froxy Dashboard", dashboard.ConfigDashboardServer(dsbd))
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
