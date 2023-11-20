@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/lifthus/froxy/internal/config"
 	"github.com/lifthus/pathmatch"
 )
 
@@ -45,11 +44,11 @@ func (pt *ProxyTarget) NextTargetURL(path string) (targetURL *url.URL) {
 	return target.JoinPath(path)
 }
 
-func ConfigReverseProxy(rpsm map[string]*config.ReverseProxySet) (*ReverseFroxy, error) {
+func ConfigReverseProxy(rpsm map[string]map[string][]string) (*ReverseFroxy, error) {
 	var err error
 	hostProxyMap := make(map[string]*pathmatch.Matcher[*ProxyTarget])
 	for host, rps := range rpsm {
-		hostProxyMap[host], err = newBasepathMatcher(rps.Target)
+		hostProxyMap[host], err = newBasepathMatcher(rps)
 		if err != nil {
 			return nil, err
 		}

@@ -18,9 +18,9 @@ func (ff *ForwardFroxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	ff.handler.ServeHTTP(w, req)
 }
 
-func ConfigForwardFroxy(allowed []string) *ForwardFroxy {
+func ConfigForwardFroxy() *ForwardFroxy {
 	ff := &ForwardFroxy{
-		Allowed:          strSliceToMap(allowed),
+		Allowed:          make(map[string]struct{}),
 		ForwardChainInfo: false,
 	}
 	return usePlainForwardProxyHandler(ff)

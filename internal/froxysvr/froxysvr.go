@@ -48,7 +48,7 @@ func registerHTTPServer(name string, svr *http.Server) error {
 
 func ConfigForwardProxyServers(ffcs []*config.ForwardFroxy) error {
 	for _, ffc := range ffcs {
-		ff := httpforward.ConfigForwardFroxy(ffc.Allowed)
+		ff := httpforward.ConfigForwardFroxy()
 		server := &http.Server{
 			Addr:    ffc.Port,
 			Handler: ff,
@@ -73,7 +73,6 @@ func ConfigReverseProxies(rfcs []*config.ReverseFroxy) error {
 			Handler:   rf,
 			TLSConfig: rfc.GetTLSConfig(),
 		}
-
 		err = registerHTTPServer(rfc.Name, server)
 		if err != nil {
 			return err
