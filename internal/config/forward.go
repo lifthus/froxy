@@ -6,16 +6,16 @@ import (
 )
 
 // ForwardFroxy holds each forward proxy's config
-type ForwardFroxy struct {
+type ForwardProxy struct {
 	Name string
 	Port string
 }
 
-func configForwardProxyList(ff []froxyfile.ForwardProxy) ([]*ForwardFroxy, error) {
+func configForwardProxyList(ff []froxyfile.ForwardProxy) ([]*ForwardProxy, error) {
 	var err error
-	fs := make([]*ForwardFroxy, len(ff))
+	fs := make([]*ForwardProxy, len(ff))
 	for i, f := range ff {
-		cf := ForwardFroxy(f)
+		cf := ForwardProxy(f)
 		cf.Port, err = froxynet.ValidateAndFormatPort(cf.Port)
 		if err != nil {
 			return nil, err

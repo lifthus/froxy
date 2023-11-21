@@ -6,8 +6,8 @@ import (
 
 type FroxyConfig struct {
 	Dashboard        *Dashboard
-	ForwardProxyList []*ForwardFroxy
-	ReverseProxyList []*ReverseFroxy
+	ForwardProxyList []*ForwardProxy
+	ReverseProxyList []*ReverseProxy
 }
 
 // InitConfig parses the froxyfile and returns the FroxyConfig struct.

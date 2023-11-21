@@ -8,8 +8,8 @@ import (
 	"github.com/lifthus/froxy/pkg/froxynet"
 )
 
-// ReverseFroxy holds each reverse proxy's config
-type ReverseFroxy struct {
+// ReverseProxy holds each reverse proxy's config
+type ReverseProxy struct {
 	Name string
 	Port string
 	cert *tls.Certificate
@@ -20,17 +20,17 @@ type ReverseFroxy struct {
 	Proxy map[string]map[string][]string
 }
 
-func (rf *ReverseFroxy) GetTLSConfig() *tls.Config {
+func (rf *ReverseProxy) GetTLSConfig() *tls.Config {
 	if rf.cert == nil {
 		return nil
 	}
 	return &tls.Config{Certificates: []tls.Certificate{*rf.cert}}
 }
 
-func configReverseProxyList(ff []froxyfile.ReverseProxy) (rfs []*ReverseFroxy, err error) {
-	rfs = make([]*ReverseFroxy, len(ff))
+func configReverseProxyList(ff []froxyfile.ReverseProxy) (rfs []*ReverseProxy, err error) {
+	rfs = make([]*ReverseProxy, len(ff))
 	for i, f := range ff {
-		rf := &ReverseFroxy{}
+		rf := &ReverseProxy{}
 		rf.Name = f.Name
 		rf.Port, err = froxynet.ValidateAndFormatPort(f.Port)
 		if err != nil {
