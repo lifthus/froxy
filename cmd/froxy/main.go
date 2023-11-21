@@ -17,6 +17,7 @@ func main() {
 
 	root.InputCredentials()
 	dashboard.BootDashboard(fconfigs.Dashboard)
+	log.Println("dashboard booted")
 
 	froxysvr.ConfigForwardProxyServers(fconfigs.ForwardProxyList)
 	froxysvr.ConfigReverseProxies(fconfigs.ReverseProxyList)

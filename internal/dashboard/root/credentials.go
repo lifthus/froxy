@@ -15,13 +15,13 @@ var (
 
 func InputCredentials() error {
 	var err error
-	fmt.Println("* root username : ")
+	fmt.Print("* root username : ")
 	fmt.Scanln(&username)
 	if err = validateRootUsername(username); err != nil {
 		username = ""
 		return err
 	}
-	fmt.Println("* root password : ")
+	fmt.Print("* root password : ")
 	password, err = term.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
 		return err

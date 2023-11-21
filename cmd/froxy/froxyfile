@@ -1,11 +1,11 @@
 dashboard:
   port: 8542 # 8542 is default port for froxy dashboard.
-  host: 123.123.123.123 # dashboard host as an IP addr or domain name
+  host: localhost # dashboard host as an IP addr or domain name
   # HTTPS is mandatory for web dashboard, so if "tls" not set,
   # froxy automatically generates self-signed key pair for HTTPS.
-  tls:
-    cert: ./cert.pem
-    key: ./key.pem
+  # tls:
+  #   cert: ./cert.pem
+  #   key: ./key.pem
 # forward is config list of forward proxies.
 forward:
   - name: forward-froxy # name to identify the proxy
@@ -15,9 +15,9 @@ reverse:
   - name: example-reverse
     port: 8544
     insecure: false # if explcitly set to true, HTTP is used instead of HTTPS(ignoring "tls" field). Default is false.
-    tls: # if not set when insecure flag is false, self-signed certificates for given hosts are automatically generated.
-      cert: ./cert2.pem
-      key: ./key2.pem
+    # tls: # if not set when insecure flag is false, self-signed certificates for given hosts are automatically generated.
+    #   cert: ./cert2.pem
+    #   key: ./key2.pem
     proxy:
       "abc.com": # target host of request message to match. "*" can be used to match all kinds of hosts.
         "/": # all requests to abc.com will be forwarded to the URL specified in this list.
