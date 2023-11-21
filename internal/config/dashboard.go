@@ -33,13 +33,15 @@ func configDashboard(ff *froxyfile.Dashboard) (dsbd *Dashboard, err error) {
 	if dsbd.Port, err = froxynet.ValidateAndFormatPort(*ff.Port); err != nil {
 		return nil, err
 	}
+	var cert *tls.Certificate
 	if ff.TLS != nil {
-		dsbd.cert, err = froxycrypt.LoadTLSCert(ff.TLS.Cert, ff.TLS.Key)
+		cert, err = froxycrypt.LoadTLSCert(ff.TLS.Cert, ff.TLS.Key)
 	} else {
-		dsbd.cert, err = froxycrypt.SignTLSCertSelf([]string{ff.Host})
+		cert, err = froxycrypt.SignTLSCertSelf([]string{ff.Host})
 	}
 	if err != nil {
 		return nil, err
 	}
+	dsbd.cert = *cert
 	return dsbd, nil
 }

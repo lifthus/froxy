@@ -14,20 +14,21 @@ import (
 	"time"
 )
 
-func LoadTLSCert(certPath, keyPath string) (tls.Certificate, error) {
-	return tls.LoadX509KeyPair(certPath, keyPath)
+func LoadTLSCert(certPath, keyPath string) (*tls.Certificate, error) {
+	cert, err := tls.LoadX509KeyPair(certPath, keyPath)
+	return &cert, err
 }
 
-func SignTLSCertSelf(hosts []string) (tls.Certificate, error) {
+func SignTLSCertSelf(hosts []string) (*tls.Certificate, error) {
 	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
-		return tls.Certificate{}, err
+		return nil, err
 	}
 
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
 	if err != nil {
-		return tls.Certificate{}, err
+		return nil, err
 	}
 
 	ipaddrs := make([]net.IP, 0)
@@ -59,22 +60,23 @@ func SignTLSCertSelf(hosts []string) (tls.Certificate, error) {
 	// template is the parent of itself, which makes it self-signed.
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &privateKey.PublicKey, privateKey)
 	if err != nil {
-		return tls.Certificate{}, err
+		return nil, err
 	}
 
 	pemCert := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
 	if pemCert == nil {
-		return tls.Certificate{}, fmt.Errorf("certificate pem encoding failed")
+		return nil, fmt.Errorf("certificate pem encoding failed")
 	}
 
 	privBytes, err := x509.MarshalPKCS8PrivateKey(privateKey)
 	if err != nil {
-		return tls.Certificate{}, err
+		return nil, err
 	}
 	pemKey := pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: privBytes})
 	if pemKey == nil {
-		return tls.Certificate{}, fmt.Errorf("private key pem encoding failed")
+		return nil, fmt.Errorf("private key pem encoding failed")
 	}
 
-	return tls.X509KeyPair(pemCert, pemKey)
+	cert, err := tls.X509KeyPair(pemCert, pemKey)
+	return &cert, err
 }

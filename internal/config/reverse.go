@@ -37,7 +37,7 @@ func configReverseProxyList(ff []froxyfile.ReverseProxy) (rfs []*ReverseProxy, e
 			return nil, err
 		}
 		if !f.Insecure {
-			var cert tls.Certificate
+			var cert *tls.Certificate
 			if f.TLS != nil {
 				cert, err = froxycrypt.LoadTLSCert(f.TLS.Cert, f.TLS.Key)
 			} else {
@@ -47,7 +47,7 @@ func configReverseProxyList(ff []froxyfile.ReverseProxy) (rfs []*ReverseProxy, e
 			if err != nil {
 				return nil, err
 			}
-			rf.cert = &cert
+			rf.cert = cert
 		}
 		rf.Proxy = f.Proxy
 		rfs[i] = rf
