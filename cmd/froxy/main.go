@@ -15,7 +15,10 @@ func main() {
 		log.Fatalf("initializing froxy failed: %v", err)
 	}
 
-	root.InputCredentials()
+	err = root.InputCredentials()
+	if err != nil {
+		log.Fatalf("inputting credentials failed: %v", err)
+	}
 	dashboard.BootDashboard(fconfigs.Dashboard)
 	log.Println("dashboard booted")
 
