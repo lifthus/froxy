@@ -1,6 +1,9 @@
 package dashboard
 
-import "net/http"
+import (
+	"net"
+	"net/http"
+)
 
 func MuxDashboardAPI(mux *http.ServeMux) *http.ServeMux {
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -23,5 +26,16 @@ func MuxDashboardAPI(mux *http.ServeMux) *http.ServeMux {
 		w.Header().Set("Content-Type", "text/plain")
 		w.Write([]byte("Hello from dashboard API"))
 	})
+	mux.HandleFunc("/api/client/ipaddr", ClientIPAddrAPI)
 	return mux
+}
+
+func ClientIPAddrAPI(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	w.Header().Set("Content-Type", "text/plain")
+	host, _, _ := net.SplitHostPort(r.RemoteAddr)
+	w.Write([]byte(host))
 }
