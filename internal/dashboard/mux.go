@@ -35,7 +35,12 @@ func ClientIPAddrAPI(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
+
 	w.Header().Set("Content-Type", "text/plain")
 	host, _, _ := net.SplitHostPort(r.RemoteAddr)
+	// allowing localhost for development
+	if host == "::1" || host == "127.0.0.1" || host == "localhost" {
+		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+	}
 	w.Write([]byte(host))
 }

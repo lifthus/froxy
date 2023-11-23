@@ -14,17 +14,9 @@ forward:
 reverse:
   - name: example-reverse
     port: 8544
-    insecure: false # if explcitly set to true, HTTP is used instead of HTTPS(ignoring "tls" field). Default is false.
-    # tls: # if not set when insecure flag is false, self-signed certificates for given hosts are automatically generated.
-    #   cert: ./cert2.pem
-    #   key: ./key2.pem
     proxy:
-      "abc.com": # target host of request message to match. "*" can be used to match all kinds of hosts.
+      "localhost": # target host of request message to match. "*" can be used to match all kinds of hosts.
         "/": # all requests to abc.com will be forwarded to the URL specified in this list.
-          - http://127.0.0.1:8545
-        "/api": # all request with target path starting with "/api" will be forwarded to the url specified in this list.
-          - http://127.0.0.1:8546
-        "/api/v2": # note that longer path(/api/v2) will be matched first, prior to shorter path(/api).
-          # if multiple URLs provided, the reverse proxy automatically works as a round-robin load balancer.
-          - http://127.0.0.1:8547
-          - http://127.0.0.1:8548
+          - http://localhost:5173
+        "/api":
+          - http://localhost:8542/api
