@@ -26,6 +26,7 @@ func InputCredentials() error {
 	if err != nil {
 		return err
 	}
+	fmt.Println()
 	if err = validateRootPassword(string(password)); err != nil {
 		username = ""
 		password = make([]byte, 0)
