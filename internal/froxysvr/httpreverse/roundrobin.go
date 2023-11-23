@@ -2,6 +2,7 @@ package httpreverse
 
 import (
 	"context"
+	"crypto/tls"
 	"io"
 	"log"
 	"mime"
@@ -121,7 +122,13 @@ func useRoundRobinLoadBalanceHandler(ff *ReverseFroxy) *ReverseFroxy {
 		}
 		outreq = outreq.WithContext(httptrace.WithClientTrace(outreq.Context(), trace))
 
-		transport := http.DefaultTransport
+		transport := http.Transport{
+			TLSClientConfig: &tls.Config{
+				// Golang uses the OS certificate store.
+				// By setting this to true, it accepts any certificate from the backend.
+				InsecureSkipVerify: true,
+			},
+		}
 		res, err := transport.RoundTrip(outreq)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadGateway)
@@ -192,7 +199,7 @@ func rewriteReqURLToTarget(req *http.Request, target *url.URL) {
 	req.URL.Scheme = target.Scheme
 	req.URL.Host = target.Host
 
-	req.URL.Path, req.URL.RawPath = joinURLPath(target, req.URL)
+	req.URL.Path = target.Path
 
 	targetQuery := target.RawQuery
 	if targetQuery == "" || req.URL.RawQuery == "" {
