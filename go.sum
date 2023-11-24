@@ -4,6 +4,8 @@ github.com/lifthus/pathmatch v0.0.0-20231102163739-d4f2bb514443 h1:Waj+jI6YKLjwU
 github.com/lifthus/pathmatch v0.0.0-20231102163739-d4f2bb514443/go.mod h1:GzDIg99wTprE36BTLAnXomuB8QFiUFPR/yYMZPErSNo=
 github.com/lifthus/pathmatch v0.1.0 h1:ywO9R+Zt1ZTQCWB6xIb0oc31SmCYvQIHPCqjevd9Qcs=
 github.com/lifthus/pathmatch v0.1.0/go.mod h1:GzDIg99wTprE36BTLAnXomuB8QFiUFPR/yYMZPErSNo=
+github.com/lifthus/pathmatch v0.2.0 h1:fvnl+PCtRW4y2l7HXBpSCs91I4i2aGQXSj/sl9DC9F8=
+github.com/lifthus/pathmatch v0.2.0/go.mod h1:GzDIg99wTprE36BTLAnXomuB8QFiUFPR/yYMZPErSNo=
 golang.org/x/sys v0.14.0 h1:Vz7Qs629MkJkGyHxUlRHizWJRG2j8fbQKjELVSNhy7Q=
 golang.org/x/sys v0.14.0/go.mod h1:/VUhepiaJMQUp4+oa/7Zr1D23ma6VTLIYjOOTFZPUcA=
 golang.org/x/term v0.14.0 h1:LGK9IlZ8T9jvdy6cTdfKUCltatMFOehAQo9SRC46UQ8=

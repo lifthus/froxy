@@ -127,6 +127,8 @@ func useRoundRobinLoadBalanceHandler(ff *ReverseFroxy) *ReverseFroxy {
 		}
 		outreq = outreq.WithContext(httptrace.WithClientTrace(outreq.Context(), trace))
 
+		log.Println(outreq.URL)
+
 		transport := http.Transport{
 			TLSClientConfig: &tls.Config{
 				// Golang uses the OS certificate store.

@@ -27,6 +27,7 @@ func MuxDashboardAPI(mux *http.ServeMux) *http.ServeMux {
 		w.Write([]byte("Hello from dashboard API"))
 	})
 	mux.HandleFunc("/api/client/ipaddr", ClientIPAddrAPI)
+	mux.HandleFunc("/api/client", ClientInfoAPI)
 	return mux
 }
 
