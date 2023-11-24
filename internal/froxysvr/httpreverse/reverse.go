@@ -84,6 +84,10 @@ func stringsToURLs(strurls []string) ([]*url.URL, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		// if Path is empty,
+		// roundtrip request target becomes like "...:8542abc" rather than "...:8542/abc".
+		// this behavior is captured by using Wireshark, while DumpRequest() showing the expected result.
 		if url.Path == "" {
 			url.Path = "/"
 		}

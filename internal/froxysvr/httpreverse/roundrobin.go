@@ -61,6 +61,7 @@ func useRoundRobinLoadBalanceHandler(ff *ReverseFroxy) *ReverseFroxy {
 
 		outreq.Host = targetURL.Host
 		outreq.Header.Set("Host", targetURL.Host)
+		// Maybe Referer header field should be modified as well.
 
 		if outreq.Form != nil {
 			outreq.URL.RawQuery = cleanQueryParams(outreq.URL.RawQuery)
