@@ -55,8 +55,12 @@ func useRoundRobinLoadBalanceHandler(ff *ReverseFroxy) *ReverseFroxy {
 			http.Error(w, "path not found", http.StatusNotFound)
 			return
 		}
+
 		targetURL := proxyTarget.NextTargetURL(path)
 		rewriteReqURLToTarget(outreq, targetURL)
+
+		outreq.Host = targetURL.Host
+		outreq.Header.Set("Host", targetURL.Host)
 
 		if outreq.Form != nil {
 			outreq.URL.RawQuery = cleanQueryParams(outreq.URL.RawQuery)

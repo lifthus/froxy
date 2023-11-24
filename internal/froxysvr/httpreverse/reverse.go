@@ -84,6 +84,9 @@ func stringsToURLs(strurls []string) ([]*url.URL, error) {
 		if err != nil {
 			return nil, err
 		}
+		if url.Path == "" {
+			url.Path = "/"
+		}
 		urls[i] = url
 	}
 	return urls, nil
