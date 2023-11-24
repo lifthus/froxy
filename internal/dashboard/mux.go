@@ -1,47 +1,65 @@
 package dashboard
 
 import (
-	"net"
+	"fmt"
 	"net/http"
 )
 
-func MuxDashboardAPI(mux *http.ServeMux) *http.ServeMux {
+func muxDashboard(mux *http.ServeMux) *http.ServeMux {
+	apiMux := newAPIMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html")
-		w.Write([]byte(`
-			<h1>Dashboard</h1>
-			<body>
-				<button onclick="fetchtest()">Fetch</button>
-			</body>
-			<script>
-			const fetchtest = async() => {
-				const response = await fetch('/api')
-				const text = await response.text()
-				alert(text)
-			}
-			</script>
-		`))
+		// TODO:
+		// read session info from jwt cookie
+		// establish new session if not exists
+		// set the clientinfo to request context
+		apiMux.ServeHTTP(w, r)
 	})
-	mux.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/plain")
-		w.Write([]byte("Hello from dashboard API"))
-	})
-	mux.HandleFunc("/api/client/ipaddr", ClientIPAddrAPI)
-	mux.HandleFunc("/api/client", ClientInfoAPI)
 	return mux
 }
 
-func ClientIPAddrAPI(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
+func newAPIMux() *http.ServeMux {
+	loadSessionMux()
 
-	w.Header().Set("Content-Type", "text/plain")
-	host, _, _ := net.SplitHostPort(r.RemoteAddr)
-	// allowing localhost for development
-	if host == "::1" || host == "127.0.0.1" || host == "localhost" {
-		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	})
+
+	for path, methodHandler := range pathMethodHandler {
+		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+			handler, ok := methodHandler[r.Method]
+			if !ok {
+				w.WriteHeader(http.StatusMethodNotAllowed)
+				return
+			}
+			handler(w, r)
+		})
 	}
-	w.Write([]byte(host))
+	return mux
+}
+
+var (
+	pathMethodHandler = make(map[string]map[string]http.HandlerFunc, 0)
+)
+
+func HandleGET(path string, handler http.HandlerFunc) {
+	handle(http.MethodGet, path, handler)
+}
+
+func HandlePOST(path string, handler http.HandlerFunc) {
+	handle(http.MethodPost, path, handler)
+}
+
+func handle(method string, path string, handler http.HandlerFunc) {
+	methodHandler, ok := pathMethodHandler[path]
+	if !ok {
+		methodHandler = make(map[string]http.HandlerFunc, 0)
+		pathMethodHandler[path] = methodHandler
+	}
+	_, ok = methodHandler[method]
+	if ok {
+		panic(fmt.Sprintf("handler for path %s and method %s already exists", path, method))
+	}
+	methodHandler[method] = handler
 }

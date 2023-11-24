@@ -14,7 +14,7 @@ var (
 func BootDashboard(dashboard *config.Dashboard) {
 	DsbdConfig = dashboard
 	mux := http.NewServeMux()
-	mux = MuxDashboardAPI(mux)
+	mux = muxDashboard(mux)
 	server := &http.Server{
 		Addr:      dashboard.Port,
 		Handler:   mux,

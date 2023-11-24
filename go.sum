@@ -1,3 +1,5 @@
+github.com/golang-jwt/jwt v3.2.2+incompatible h1:IfV12K8xAKAnZqdXVzCZ+TOjboZ2keLg81eXfW3O+oY=
+github.com/golang-jwt/jwt v3.2.2+incompatible/go.mod h1:8pz2t5EyA70fFQQSrl6XZXzqecmYZeUEB8OUGHkxJ+I=
 github.com/lifthus/pathmatch v0.0.0-20231102155033-1a30b9b3d65d h1:ayozDi57Bcrnng6cqr8hbh3WqpuhGRI8sEgs/SWCBok=
 github.com/lifthus/pathmatch v0.0.0-20231102155033-1a30b9b3d65d/go.mod h1:GzDIg99wTprE36BTLAnXomuB8QFiUFPR/yYMZPErSNo=
 github.com/lifthus/pathmatch v0.0.0-20231102163739-d4f2bb514443 h1:Waj+jI6YKLjwUOvbErC5Xfer+ysR1tgHBlD9TR5iXNA=

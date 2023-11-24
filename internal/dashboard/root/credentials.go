@@ -9,27 +9,27 @@ import (
 )
 
 var (
-	username string
-	password []byte = make([]byte, 0)
+	rootUsername string
+	rootPassword []byte = make([]byte, 0)
 )
 
 func InputCredentials() error {
 	var err error
 	fmt.Print("* root username : ")
-	fmt.Scanln(&username)
-	if err = validateRootUsername(username); err != nil {
-		username = ""
+	fmt.Scanln(&rootUsername)
+	if err = validateRootUsername(rootUsername); err != nil {
+		rootUsername = ""
 		return err
 	}
 	fmt.Print("* root password : ")
-	password, err = term.ReadPassword(int(os.Stdin.Fd()))
+	rootPassword, err = term.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
 		return err
 	}
 	fmt.Println()
-	if err = validateRootPassword(string(password)); err != nil {
-		username = ""
-		password = make([]byte, 0)
+	if err = validateRootPassword(string(rootPassword)); err != nil {
+		rootUsername = ""
+		rootPassword = make([]byte, 0)
 		return err
 	}
 	return nil
@@ -53,4 +53,14 @@ func validateRootPassword(rp string) error {
 		return fmt.Errorf("root password must be 6~100 characters(only digits, english alphabets and at least one between _!@#$%%^&*) long")
 	}
 	return nil
+}
+
+func Validate(username string, password string) bool {
+	if username != rootUsername {
+		return false
+	}
+	if password != string(rootPassword) {
+		return false
+	}
+	return true
 }
