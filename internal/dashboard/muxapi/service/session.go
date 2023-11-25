@@ -3,7 +3,6 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"net"
 	"net/http"
 
 	"github.com/lifthus/froxy/internal/dashboard/root"
@@ -26,11 +25,6 @@ func GetSessionInfo(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(cinfob)
-}
-
-func GetIPAddr(r *http.Request) string {
-	host, _, _ := net.SplitHostPort(r.RemoteAddr)
-	return host
 }
 
 func RootSignIn(w http.ResponseWriter, r *http.Request) {

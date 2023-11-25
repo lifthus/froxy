@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/lifthus/froxy/internal/config"
+	"github.com/lifthus/froxy/internal/dashboard/httphelper"
 	"github.com/lifthus/froxy/internal/dashboard/muxapi"
-	"github.com/lifthus/froxy/internal/dashboard/muxapi/service"
 	"github.com/lifthus/froxy/internal/dashboard/muxstatic"
 	"github.com/lifthus/froxy/internal/dashboard/session"
 )
@@ -45,7 +45,7 @@ func muxDashboard(mux *http.ServeMux) *http.ServeMux {
 
 		cinfo, err = validateTokenAndGetClientInfo(r)
 		if err != nil {
-			token, cinfo, err = session.NewSession(service.GetIPAddr(r))
+			token, cinfo, err = session.NewSession(httphelper.GetIPAddr(r))
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				return
