@@ -4,16 +4,12 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/lifthus/froxy/internal/dashboard/httphelper"
 	"github.com/lifthus/froxy/internal/dashboard/root"
-	"github.com/lifthus/froxy/internal/dashboard/session"
 )
 
 func GetSessionInfo(w http.ResponseWriter, r *http.Request) {
-	cinfo, ok := r.Context().Value(session.Cinfokey).(*session.ClientInfo)
-	if !ok {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	cinfo := httphelper.ClientInfo(r)
 
 	cinfob, err := json.Marshal(cinfo)
 	if err != nil {
@@ -42,23 +38,13 @@ func RootSignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cinfo, ok := r.Context().Value(session.Cinfokey).(*session.ClientInfo)
-	if !ok {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
+	cinfo := httphelper.ClientInfo(r)
 	cinfo.Root = true
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func SignOut(w http.ResponseWriter, r *http.Request) {
-	cinfo, ok := r.Context().Value(session.Cinfokey).(*session.ClientInfo)
-	if !ok {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
+	cinfo := httphelper.ClientInfo(r)
 	cinfo.Root = false
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
