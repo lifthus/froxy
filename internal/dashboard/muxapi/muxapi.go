@@ -12,16 +12,20 @@ func NewAPIMux() *http.ServeMux {
 	})
 
 	for path, methodHandler := range pathMethodHandler {
-		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
-			handler, ok := methodHandler[r.Method]
-			if !ok {
-				w.WriteHeader(http.StatusMethodNotAllowed)
-				return
-			}
-			handler(w, r)
-		})
+		mux.HandleFunc(path, NewHandlerWithMethodHandler(methodHandler))
 	}
 	return mux
+}
+
+func NewHandlerWithMethodHandler(mh map[string]http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		handler, ok := mh[r.Method]
+		if !ok {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+		handler(w, r)
+	}
 }
 
 var (
