@@ -12,8 +12,8 @@ import (
 
 var (
 	svrMap          = make(map[string]*http.Server)
-	forwardFroxyMap = make(map[string]*httpforward.ForwardFroxy)
-	reverseFroxyMap = make(map[string]*httpreverse.ReverseFroxy)
+	ForwardFroxyMap = make(map[string]*httpforward.ForwardFroxy)
+	ReverseFroxyMap = make(map[string]*httpreverse.ReverseFroxy)
 )
 
 // Boot starts all registered HTTP servers.

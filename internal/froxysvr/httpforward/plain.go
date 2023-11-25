@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-
-	"github.com/lifthus/froxy/internal/dashboard"
 )
 
 func usePlainForwardProxyHandler(ff *ForwardFroxy) *ForwardFroxy {
@@ -17,7 +15,7 @@ func usePlainForwardProxyHandler(ff *ForwardFroxy) *ForwardFroxy {
 		// log.Println(req.RemoteAddr, "\t", req.Method, "\t", req.URL, "\t Host:", req.Host)
 		// log.Println("\t\t", req.Header)
 
-		if !isAllowed(req, ff.Allowed) && req.URL.Host+":"+req.URL.Port() != dashboard.DsbdConfig.Host+dashboard.DsbdConfig.Port {
+		if !isAllowed(req, ff.Allowed) {
 			w.Header().Set("Proxy-Authenticate", `Allowed realm="froxy dashboard"`)
 			w.WriteHeader(http.StatusProxyAuthRequired)
 			return

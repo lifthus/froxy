@@ -22,7 +22,7 @@ func ConfigForwardProxyServers(ffcs []*config.ForwardProxy) error {
 			return err
 		}
 
-		forwardFroxyMap[ffc.Name] = ff
+		ForwardFroxyMap[ffc.Name] = ff
 	}
 	return nil
 }

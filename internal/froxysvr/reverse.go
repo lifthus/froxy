@@ -27,7 +27,7 @@ func ConfigReverseProxies(rfcs []*config.ReverseProxy) error {
 			return err
 		}
 
-		reverseFroxyMap[rfc.Name] = rf
+		ReverseFroxyMap[rfc.Name] = rf
 	}
 	return nil
 }
