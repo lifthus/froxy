@@ -11,8 +11,10 @@ import (
 )
 
 func GetSessionInfo(w http.ResponseWriter, r *http.Request) {
-	cinfo := &session.ClientInfo{
-		IPAddr: GetIPAddr(r),
+	cinfo, ok := r.Context().Value(session.Cinfokey).(*session.ClientInfo)
+	if !ok {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	cinfob, err := json.Marshal(cinfo)

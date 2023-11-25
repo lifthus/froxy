@@ -2,7 +2,6 @@ package dashboard
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -33,10 +32,6 @@ func BootDashboard(dashboard *config.Dashboard) {
 	}()
 }
 
-type cinfokey string
-
-const Cinfokey cinfokey = "cinfokey"
-
 func muxDashboard(mux *http.ServeMux) *http.ServeMux {
 	staticMux := muxstatic.NewStaticMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -57,7 +52,7 @@ func muxDashboard(mux *http.ServeMux) *http.ServeMux {
 			}
 			setSSCookie(w, token)
 		}
-		rctx := context.WithValue(r.Context(), Cinfokey, cinfo)
+		rctx := context.WithValue(r.Context(), session.Cinfokey, cinfo)
 
 		apiMux.ServeHTTP(w, r.WithContext(rctx))
 	})
@@ -70,9 +65,9 @@ func validateTokenAndGetClientInfo(r *http.Request) (*session.ClientInfo, error)
 		return nil, err
 	}
 	token := sCki.Value
-	cinfo, ok := session.GetAndExtendSession(token)
-	if !ok {
-		return nil, fmt.Errorf("invalid token")
+	cinfo, err := session.GetAndExtendSession(token)
+	if err != nil {
+		return nil, err
 	}
 	return cinfo, nil
 }
@@ -82,7 +77,6 @@ func setSSCookie(w http.ResponseWriter, token string) {
 		Name:     "ss",
 		Value:    token,
 		Path:     "/",
-		Secure:   true,
 		HttpOnly: true,
 	}
 	http.SetCookie(w, ss)

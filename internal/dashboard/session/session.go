@@ -2,6 +2,8 @@ package session
 
 import (
 	"crypto/rand"
+	"encoding/hex"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -23,6 +25,11 @@ const (
 	SESSION_EXP_TIME = time.Minute * 5
 )
 
+// for embedding in request context
+type cinfokey string
+
+const Cinfokey cinfokey = "cinfokey"
+
 type ClientInfo struct {
 	IPAddr string    `json:"ipAddr"`
 	Root   bool      `json:"root"`
@@ -31,10 +38,12 @@ type ClientInfo struct {
 }
 
 func NewSession(ipAddr string) (tokenStr string, cinfo *ClientInfo, err error) {
-	sid, err := generateSID()
+	sidb, err := generateSID()
 	if err != nil {
 		return "", nil, err
 	}
+
+	sid := hex.EncodeToString(sidb)
 
 	exp := time.Now().Add(SESSION_EXP_TIME)
 	newCinfo := &ClientInfo{
@@ -42,7 +51,7 @@ func NewSession(ipAddr string) (tokenStr string, cinfo *ClientInfo, err error) {
 		Iat:    time.Now(),
 		exp:    exp,
 	}
-	sessions[tokenStr] = newCinfo
+	sessions[string(sid)] = newCinfo
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sid": string(sid),
@@ -58,7 +67,7 @@ func NewSession(ipAddr string) (tokenStr string, cinfo *ClientInfo, err error) {
 }
 
 func generateSID() ([]byte, error) {
-	sid := make([]byte, 32)
+	sid := make([]byte, 4)
 	for {
 		_, err := rand.Read(sid)
 		if err != nil {
@@ -79,27 +88,28 @@ func clearExpiredSessions() {
 	}
 }
 
-func GetAndExtendSession(tokenStr string) (*ClientInfo, bool) {
+func GetAndExtendSession(tokenStr string) (*ClientInfo, error) {
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		return jwtkey, nil
 	})
 	if err != nil {
-		return nil, false
+		return nil, err
 	}
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return nil, false
+		return nil, fmt.Errorf("invalid token")
 	}
 
 	sid, ok := claims["sid"].(string)
 	if !ok {
-		return nil, false
+		return nil, fmt.Errorf("no sid in token")
 	}
 
 	cinfo, ok := sessions[sid]
-	if cinfo.exp.Before(time.Now()) {
-		return nil, false
+	if !ok || cinfo.exp.Before(time.Now()) {
+		return nil, fmt.Errorf("invalid sid")
 	}
+
 	cinfo.exp = time.Now().Add(SESSION_EXP_TIME)
-	return cinfo, ok
+	return cinfo, nil
 }
