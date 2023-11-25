@@ -2,7 +2,6 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/lifthus/froxy/internal/dashboard/root"
@@ -38,11 +37,17 @@ func RootSignIn(w http.ResponseWriter, r *http.Request) {
 	pw := r.PostForm.Get("password")
 
 	ok := root.Validate(uname, pw)
+	if !ok {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
 
-	// TODO: Sign Root
+	cinfo, ok := r.Context().Value(session.Cinfokey).(*session.ClientInfo)
+	if !ok {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
-	fmt.Println(uname, pw, ok)
-
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("ok"))
+	cinfo.Root = true
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
