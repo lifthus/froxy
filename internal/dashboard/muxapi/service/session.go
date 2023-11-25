@@ -1,4 +1,4 @@
-package dashboard
+package service
 
 import (
 	"encoding/json"
@@ -10,17 +10,7 @@ import (
 	"github.com/lifthus/froxy/internal/dashboard/session"
 )
 
-func loadSessionMux() error {
-	HandleGET("/api/session", func(w http.ResponseWriter, r *http.Request) {
-		getSessionInfo(w, r)
-	})
-	HandlePOST("/api/session/root", func(w http.ResponseWriter, r *http.Request) {
-		rootSignIn(w, r)
-	})
-	return nil
-}
-
-func getSessionInfo(w http.ResponseWriter, r *http.Request) {
+func GetSessionInfo(w http.ResponseWriter, r *http.Request) {
 	cinfo := &session.ClientInfo{
 		IPAddr: getIPAddr(r),
 	}
@@ -41,7 +31,7 @@ func getIPAddr(r *http.Request) string {
 	return host
 }
 
-func rootSignIn(w http.ResponseWriter, r *http.Request) {
+func RootSignIn(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)

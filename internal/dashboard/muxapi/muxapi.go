@@ -1,28 +1,13 @@
-package dashboard
+package muxapi
 
 import (
 	"fmt"
 	"net/http"
 )
 
-func muxDashboard(mux *http.ServeMux) *http.ServeMux {
-	apiMux := newAPIMux()
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		// TODO:
-		// read session info from jwt cookie
-		// establish new session if not exists
-		// set the clientinfo to request context
-		apiMux.ServeHTTP(w, r)
-	})
-	return mux
-}
-
-func newAPIMux() *http.ServeMux {
-	loadSessionMux()
-
+func NewAPIMux() *http.ServeMux {
 	mux := http.NewServeMux()
-
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 	})
 
