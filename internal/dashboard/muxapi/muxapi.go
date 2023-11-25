@@ -12,12 +12,12 @@ func NewAPIMux() *http.ServeMux {
 	})
 
 	for path, methodHandler := range pathMethodHandler {
-		mux.HandleFunc(path, NewHandlerWithMethodHandler(methodHandler))
+		mux.HandleFunc(path, newHandlerWithMethodHandler(methodHandler))
 	}
 	return mux
 }
 
-func NewHandlerWithMethodHandler(mh map[string]http.HandlerFunc) http.HandlerFunc {
+func newHandlerWithMethodHandler(mh map[string]http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		handler, ok := mh[r.Method]
 		if !ok {
