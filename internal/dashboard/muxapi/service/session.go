@@ -51,3 +51,14 @@ func RootSignIn(w http.ResponseWriter, r *http.Request) {
 	cinfo.Root = true
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
+
+func SignOut(w http.ResponseWriter, r *http.Request) {
+	cinfo, ok := r.Context().Value(session.Cinfokey).(*session.ClientInfo)
+	if !ok {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	cinfo.Root = false
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}

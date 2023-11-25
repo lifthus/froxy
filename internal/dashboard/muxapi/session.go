@@ -13,4 +13,7 @@ func init() {
 	HandlePOST("/api/session/root", func(w http.ResponseWriter, r *http.Request) {
 		service.RootSignIn(w, r)
 	})
+	HandlePOST("/api/session/out", func(w http.ResponseWriter, r *http.Request) {
+		service.SignOut(w, r)
+	})
 }
