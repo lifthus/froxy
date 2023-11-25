@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -17,6 +18,7 @@ func init() {
 }
 
 var (
+	ssmu     = sync.Mutex{}
 	sessions = make(map[string]*ClientInfo, 0)
 	jwtkey   = make([]byte, 128)
 )
@@ -51,7 +53,10 @@ func NewSession(ipAddr string) (tokenStr string, cinfo *ClientInfo, err error) {
 		Iat:    time.Now(),
 		exp:    exp,
 	}
+
+	ssmu.Lock()
 	sessions[string(sid)] = newCinfo
+	ssmu.Unlock()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sid": string(sid),
@@ -83,7 +88,9 @@ func generateSID() ([]byte, error) {
 func clearExpiredSessions() {
 	for sid, cinfo := range sessions {
 		if cinfo.exp.Before(time.Now()) {
+			ssmu.Lock()
 			delete(sessions, sid)
+			ssmu.Unlock()
 		}
 	}
 }

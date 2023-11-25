@@ -11,21 +11,21 @@ import (
 )
 
 var (
-	svrMap          = make(map[string]*http.Server)
+	SvrMap          = make(map[string]*http.Server)
 	ForwardFroxyMap = make(map[string]*httpforward.ForwardFroxy)
 	ReverseFroxyMap = make(map[string]*httpreverse.ReverseFroxy)
 )
 
 // Boot starts all registered HTTP servers.
 func Boot() error {
-	errch := runHttpServers(svrMap)
+	errch := runHttpServers(SvrMap)
 	err := <-errch
-	shutdownHttpServers(svrMap)
+	shutdownHttpServers(SvrMap)
 	return err
 }
 
 func runHttpServers(svrmap map[string]*http.Server) chan error {
-	var errch = make(chan error, len(svrMap))
+	var errch = make(chan error, len(SvrMap))
 	for name, svr := range svrmap {
 		log.Printf("server %s listening on port:%s", name, svr.Addr)
 		go func(svr *http.Server) {
@@ -47,9 +47,9 @@ func shutdownHttpServers(svrmap map[string]*http.Server) {
 }
 
 func registerHTTPServer(name string, svr *http.Server) error {
-	if _, ok := svrMap[name]; ok {
+	if _, ok := SvrMap[name]; ok {
 		return fmt.Errorf("server %s already registered", name)
 	}
-	svrMap[name] = svr
+	SvrMap[name] = svr
 	return nil
 }
