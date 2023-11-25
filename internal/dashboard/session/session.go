@@ -30,30 +30,31 @@ type ClientInfo struct {
 	exp    time.Time
 }
 
-func NewSession(ipAddr string) (tokenStr string, err error) {
+func NewSession(ipAddr string) (tokenStr string, cinfo *ClientInfo, err error) {
 	sid, err := generateSID()
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	exp := time.Now().Add(SESSION_EXP_TIME)
-	sessions[tokenStr] = &ClientInfo{
+	newCinfo := &ClientInfo{
 		IPAddr: ipAddr,
 		Iat:    time.Now(),
 		exp:    exp,
 	}
+	sessions[tokenStr] = newCinfo
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sid": string(sid),
 	})
 	tokenStr, err = token.SignedString(jwtkey)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	// clear expired sessions every time new session is created
 	go clearExpiredSessions()
-	return tokenStr, nil
+	return tokenStr, newCinfo, nil
 }
 
 func generateSID() ([]byte, error) {

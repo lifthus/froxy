@@ -1,12 +1,16 @@
 package dashboard
 
 import (
+	"context"
+	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/lifthus/froxy/internal/config"
 	"github.com/lifthus/froxy/internal/dashboard/muxapi"
+	"github.com/lifthus/froxy/internal/dashboard/muxapi/service"
 	"github.com/lifthus/froxy/internal/dashboard/muxstatic"
+	"github.com/lifthus/froxy/internal/dashboard/session"
 )
 
 var (
@@ -29,6 +33,10 @@ func BootDashboard(dashboard *config.Dashboard) {
 	}()
 }
 
+type cinfokey string
+
+const Cinfokey cinfokey = "cinfokey"
+
 func muxDashboard(mux *http.ServeMux) *http.ServeMux {
 	staticMux := muxstatic.NewStaticMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -36,11 +44,46 @@ func muxDashboard(mux *http.ServeMux) *http.ServeMux {
 	})
 	apiMux := muxapi.NewAPIMux()
 	mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) {
-		// TODO:
-		// read session info from jwt cookie
-		// establish new session if not exists
-		// set the clientinfo to request context
-		apiMux.ServeHTTP(w, r)
+		var token string
+		var cinfo *session.ClientInfo
+		var err error
+
+		cinfo, err = validateTokenAndGetClientInfo(r)
+		if err != nil {
+			token, cinfo, err = session.NewSession(service.GetIPAddr(r))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			setSSCookie(w, token)
+		}
+		rctx := context.WithValue(r.Context(), Cinfokey, cinfo)
+
+		apiMux.ServeHTTP(w, r.WithContext(rctx))
 	})
 	return mux
+}
+
+func validateTokenAndGetClientInfo(r *http.Request) (*session.ClientInfo, error) {
+	sCki, err := r.Cookie("ss")
+	if err != nil {
+		return nil, err
+	}
+	token := sCki.Value
+	cinfo, ok := session.GetAndExtendSession(token)
+	if !ok {
+		return nil, fmt.Errorf("invalid token")
+	}
+	return cinfo, nil
+}
+
+func setSSCookie(w http.ResponseWriter, token string) {
+	ss := &http.Cookie{
+		Name:     "ss",
+		Value:    token,
+		Path:     "/",
+		Secure:   true,
+		HttpOnly: true,
+	}
+	http.SetCookie(w, ss)
 }

@@ -12,7 +12,7 @@ import (
 
 func GetSessionInfo(w http.ResponseWriter, r *http.Request) {
 	cinfo := &session.ClientInfo{
-		IPAddr: getIPAddr(r),
+		IPAddr: GetIPAddr(r),
 	}
 
 	cinfob, err := json.Marshal(cinfo)
@@ -26,7 +26,7 @@ func GetSessionInfo(w http.ResponseWriter, r *http.Request) {
 	w.Write(cinfob)
 }
 
-func getIPAddr(r *http.Request) string {
+func GetIPAddr(r *http.Request) string {
 	host, _, _ := net.SplitHostPort(r.RemoteAddr)
 	return host
 }
