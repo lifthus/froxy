@@ -40,6 +40,10 @@ func HandlePOST(path string, handler http.HandlerFunc) {
 	handle(http.MethodPost, path, handler)
 }
 
+func HandleDELETE(path string, handler http.HandlerFunc) {
+	handle(http.MethodDelete, path, handler)
+}
+
 func handle(method string, path string, handler http.HandlerFunc) {
 	methodHandler, ok := pathMethodHandler[path]
 	if !ok {

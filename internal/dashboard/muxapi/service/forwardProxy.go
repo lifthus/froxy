@@ -16,7 +16,7 @@ type ForwardStatus struct {
 }
 
 func getAllowedList(m map[string]struct{}) []string {
-	alist := make([]string, len(m))
+	alist := make([]string, 0, len(m))
 	for allowed := range m {
 		alist = append(alist, allowed)
 	}
@@ -60,4 +60,25 @@ func GetForwardProxyInfo(name string) (*dto.ForwardProxyInfo, error) {
 		Port:    port,
 		Allowed: getAllowedList(fp.Allowed),
 	}, nil
+}
+
+func AddForwardProxyWhitelist(name string, target string) error {
+	fp, ok := froxysvr.ForwardFroxyMap[name]
+	if !ok {
+		return fmt.Errorf("forward proxy <%s> not found", name)
+	}
+	if net.ParseIP(target) == nil {
+		return fmt.Errorf("target <%s> is not a valid IP address", target)
+	}
+	fp.Allowed[target] = struct{}{}
+	return nil
+}
+
+func DeleteForwardProxyWhitelist(name string, target string) error {
+	fp, ok := froxysvr.ForwardFroxyMap[name]
+	if !ok {
+		return fmt.Errorf("forward proxy <%s> not found", name)
+	}
+	delete(fp.Allowed, target)
+	return nil
 }
