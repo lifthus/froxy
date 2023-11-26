@@ -1,20 +1,23 @@
 dashboard:
-  port: 8542 # 8542 is default.
-  root: # root user config. it must be given to enable web dashboard.
-    id: admin # root user id
-    pw: "!@#$%^&*" # root user password
-  # HTTPS is mandatory for web dashboard, so if "tls" not set, froxy automatically generates self-signed key pair for HTTPS.
-  tls:
-    cert: ./cert.pem
-    key: ./key.pem
+  port: 8542 # 8542 is default port for froxy dashboard.
+  host: localhost # dashboard host as an IP addr or domain name
+  # HTTPS is mandatory for web dashboard, so if "tls" not set,
+  # froxy automatically generates self-signed key pair for HTTPS.
+  # tls:
+  #   cert: ./cert.pem
+  #   key: ./key.pem
+# forward is config list of forward proxies.
+forward:
+  - name: forward-froxy # name to identify the proxy
+    port: 8543 # port to listen on
 # reverse is config list of reverse proxies.
-reverse: # reverse proxy config
+reverse:
   - name: example-reverse
     port: 8544
-    insecure: true # if explcitly set to true, HTTP is used instead of HTTPS(ignoring "tls" field of each "proxy"). Default is false.
+    insecure: true
     proxy:
-      - host: 127.0.0.1 # target host of request message to match (optional. in default, host is simply ignored).
-        target: # proxy config
-          - path: / # all requests to abc.com will be forwarded to the url specified in "to" property below.
-            to:
-              - http://127.0.0.1:9595
+      "localhost": # target host of request message to match. "*" can be used to match all kinds of hosts.
+        "/": # all requests to abc.com will be forwarded to the URL specified in this list.
+          - http://localhost:5173
+        "/api":
+          - https://localhost:8542/api
