@@ -6,12 +6,21 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/lifthus/froxy/internal/dashboard/muxapi/dto"
 	"github.com/lifthus/froxy/internal/froxysvr"
 )
 
 type ForwardStatus struct {
 	Port    string   `json:"port"`
 	Allowed []string `json:"allowed"`
+}
+
+func getAllowedList(m map[string]struct{}) []string {
+	alist := make([]string, len(m))
+	for allowed := range m {
+		alist = append(alist, allowed)
+	}
+	return alist
 }
 
 func GetForwardProxiesOverview(w http.ResponseWriter, r *http.Request) {
@@ -37,10 +46,18 @@ func GetForwardProxiesOverview(w http.ResponseWriter, r *http.Request) {
 	w.Write(statsBytes)
 }
 
-func getAllowedList(m map[string]struct{}) []string {
-	alist := make([]string, len(m))
-	for allowed := range m {
-		alist = append(alist, allowed)
+func GetForwardProxyInfo(name string) (*dto.ForwardProxyInfo, error) {
+	fp, ok := froxysvr.ForwardFroxyMap[name]
+	if !ok {
+		return nil, nil
 	}
-	return alist
+	svr, ok := froxysvr.SvrMap[name]
+	if !ok {
+		panic(fmt.Sprintf("forward proxy <%s> http server not found from froxysvr.SvrMap", name))
+	}
+	_, port, _ := net.SplitHostPort(svr.Addr)
+	return &dto.ForwardProxyInfo{
+		Port:    port,
+		Allowed: getAllowedList(fp.Allowed),
+	}, nil
 }
