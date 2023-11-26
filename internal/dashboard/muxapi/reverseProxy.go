@@ -8,14 +8,6 @@ import (
 )
 
 func init() {
-	HandleGET("/api/proxy/forward", func(w http.ResponseWriter, r *http.Request) {
-		cinfo := httphelper.ClientInfo(r)
-		if !cinfo.Root {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		service.GetForwardProxiesOverview(w, r)
-	})
 	HandleGET("/api/proxy/reverse", func(w http.ResponseWriter, r *http.Request) {
 		cinfo := httphelper.ClientInfo(r)
 		if !cinfo.Root {
