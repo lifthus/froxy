@@ -2,13 +2,13 @@ package dashboard
 
 import (
 	"context"
+	_ "embed"
 	"log"
 	"net/http"
 
 	"github.com/lifthus/froxy/internal/config"
 	"github.com/lifthus/froxy/internal/dashboard/httphelper"
 	"github.com/lifthus/froxy/internal/dashboard/muxapi"
-	"github.com/lifthus/froxy/internal/dashboard/muxstatic"
 	"github.com/lifthus/froxy/internal/dashboard/session"
 )
 
@@ -32,10 +32,34 @@ func BootDashboard(dashboard *config.Dashboard) {
 	}()
 }
 
+//go:embed index.html
+var indexHTML []byte
+
+//go:embed index.js
+var indexJS []byte
+
+//go:embed index.css
+var indexCSS []byte
+
+//go:embed froxy.jpg
+var froxyJPG []byte
+
 func muxDashboard(mux *http.ServeMux) *http.ServeMux {
-	staticMux := muxstatic.NewStaticMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		staticMux.ServeHTTP(w, r)
+		w.Header().Set("Content-Type", "text/html")
+		w.Write(indexHTML)
+	})
+	mux.HandleFunc("/index.js", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/javascript")
+		w.Write(indexJS)
+	})
+	mux.HandleFunc("/index.css", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/css")
+		w.Write(indexCSS)
+	})
+	mux.HandleFunc("/froxy.jpg", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "image/jpeg")
+		w.Write(froxyJPG)
 	})
 	apiMux := muxapi.NewAPIMux()
 	mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) {
