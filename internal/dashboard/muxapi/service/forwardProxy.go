@@ -11,11 +11,11 @@ import (
 )
 
 type ForwardStatus struct {
-	Port    string   `json:"port"`
-	Allowed []string `json:"allowed"`
+	Port      string   `json:"port"`
+	Whitelist []string `json:"whitelist"`
 }
 
-func getAllowedList(m map[string]struct{}) []string {
+func getWhitelist(m map[string]struct{}) []string {
 	alist := make([]string, 0, len(m))
 	for allowed := range m {
 		alist = append(alist, allowed)
@@ -34,8 +34,8 @@ func GetForwardProxiesOverview(w http.ResponseWriter, r *http.Request) {
 		_, port, _ := net.SplitHostPort(svr.Addr)
 
 		forwardStats[name] = ForwardStatus{
-			Port:    port,
-			Allowed: getAllowedList(config.Allowed),
+			Port:      port,
+			Whitelist: getWhitelist(config.Whitelist),
 		}
 	}
 	statsBytes, err := json.Marshal(forwardStats)
@@ -57,8 +57,8 @@ func GetForwardProxyInfo(name string) (*dto.ForwardProxyInfo, error) {
 	}
 	_, port, _ := net.SplitHostPort(svr.Addr)
 	return &dto.ForwardProxyInfo{
-		Port:    port,
-		Allowed: getAllowedList(fp.Allowed),
+		Port:      port,
+		Whitelist: getWhitelist(fp.Whitelist),
 	}, nil
 }
 
@@ -70,7 +70,7 @@ func AddForwardProxyWhitelist(name string, target string) error {
 	if net.ParseIP(target) == nil {
 		return fmt.Errorf("target <%s> is not a valid IP address", target)
 	}
-	fp.Allowed[target] = struct{}{}
+	fp.Whitelist[target] = struct{}{}
 	return nil
 }
 
@@ -79,6 +79,6 @@ func DeleteForwardProxyWhitelist(name string, target string) error {
 	if !ok {
 		return fmt.Errorf("forward proxy <%s> not found", name)
 	}
-	delete(fp.Allowed, target)
+	delete(fp.Whitelist, target)
 	return nil
 }
