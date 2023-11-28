@@ -11,9 +11,24 @@ import (
 func init() {
 	// turn on specific forward proxy
 	RootHandlePOST("/api/proxy/forward/on/", func(w http.ResponseWriter, r *http.Request) {
+		name := strings.TrimPrefix(r.URL.Path, "/api/proxy/forward/on/")
+		err := service.TurnOnForwardProxy(name)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
 	})
 	// turn off specific forward proxy
-	RootHandlePOST("/api/proxy/forward/off/", func(w http.ResponseWriter, r *http.Request) {})
+	RootHandlePOST("/api/proxy/forward/off/", func(w http.ResponseWriter, r *http.Request) {
+		name := strings.TrimPrefix(r.URL.Path, "/api/proxy/forward/off/")
+		err := service.TurnOffForwardProxy(name)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	})
 	// get overview of all forward proxies
 	RootHandleGET("/api/proxy/forward", func(w http.ResponseWriter, r *http.Request) {
 		service.GetForwardProxiesOverview(w, r)

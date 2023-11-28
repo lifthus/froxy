@@ -10,7 +10,56 @@ import (
 	"github.com/lifthus/froxy/internal/froxysvr"
 )
 
+func TurnOnForwardProxy(name string) error {
+	fp, ok := froxysvr.ForwardFroxyMap[name]
+	if !ok {
+		return fmt.Errorf("forward proxy <%s> not found", name)
+	}
+	fp.On = true
+	return nil
+}
+
+func TurnOffForwardProxy(name string) error {
+	fp, ok := froxysvr.ForwardFroxyMap[name]
+	if !ok {
+		return fmt.Errorf("forward proxy <%s> not found", name)
+	}
+	fp.On = false
+	return nil
+}
+
+type ForwardOverview struct {
+	On           bool   `json:"on"`
+	Port         string `json:"port"`
+	WhitelistLen int    `json:"whitelistLen"`
+}
+
+func GetForwardProxiesOverview(w http.ResponseWriter, r *http.Request) {
+	forwardStats := make(map[string]ForwardOverview)
+	for name, config := range froxysvr.ForwardFroxyMap {
+
+		svr, ok := froxysvr.SvrMap[name]
+		if !ok {
+			panic(fmt.Sprintf("forward proxy <%s> http server not found from froxysvr.SvrMap", name))
+		}
+		_, port, _ := net.SplitHostPort(svr.Addr)
+
+		forwardStats[name] = ForwardOverview{
+			On:           config.On,
+			Port:         port,
+			WhitelistLen: len(config.Whitelist),
+		}
+	}
+	statsBytes, err := json.Marshal(forwardStats)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write(statsBytes)
+}
+
 type ForwardStatus struct {
+	On        bool     `json:"on"`
 	Port      string   `json:"port"`
 	Whitelist []string `json:"whitelist"`
 }
@@ -21,29 +70,6 @@ func getWhitelist(m map[string]struct{}) []string {
 		alist = append(alist, allowed)
 	}
 	return alist
-}
-
-func GetForwardProxiesOverview(w http.ResponseWriter, r *http.Request) {
-	forwardStats := make(map[string]ForwardStatus)
-	for name, config := range froxysvr.ForwardFroxyMap {
-
-		svr, ok := froxysvr.SvrMap[name]
-		if !ok {
-			panic(fmt.Sprintf("forward proxy <%s> http server not found from froxysvr.SvrMap", name))
-		}
-		_, port, _ := net.SplitHostPort(svr.Addr)
-
-		forwardStats[name] = ForwardStatus{
-			Port:      port,
-			Whitelist: getWhitelist(config.Whitelist),
-		}
-	}
-	statsBytes, err := json.Marshal(forwardStats)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Write(statsBytes)
 }
 
 func GetForwardProxyInfo(name string) (*dto.ForwardProxyInfo, error) {

@@ -5,6 +5,7 @@ import (
 )
 
 type ForwardFroxy struct {
+	On               bool
 	Whitelist        map[string]struct{}
 	ForwardChainInfo bool
 	handler          http.Handler
@@ -24,12 +25,4 @@ func ConfigForwardFroxy() *ForwardFroxy {
 		ForwardChainInfo: false,
 	}
 	return usePlainForwardProxyHandler(ff)
-}
-
-func strSliceToMap(ss []string) map[string]struct{} {
-	m := make(map[string]struct{})
-	for _, s := range ss {
-		m[s] = struct{}{}
-	}
-	return m
 }

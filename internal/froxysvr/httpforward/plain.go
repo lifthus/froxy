@@ -15,6 +15,12 @@ func usePlainForwardProxyHandler(ff *ForwardFroxy) *ForwardFroxy {
 		// log.Println(req.RemoteAddr, "\t", req.Method, "\t", req.URL, "\t Host:", req.Host)
 		// log.Println("\t\t", req.Header)
 
+		if !ff.On {
+			w.WriteHeader(http.StatusForbidden)
+			w.Write([]byte("forward proxy is off"))
+			return
+		}
+
 		if !isAllowed(req, ff.Whitelist) {
 			w.Header().Set("Proxy-Authenticate", `Allowed realm="froxy dashboard"`)
 			w.WriteHeader(http.StatusProxyAuthRequired)
