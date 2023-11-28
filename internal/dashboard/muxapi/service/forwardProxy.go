@@ -10,21 +10,12 @@ import (
 	"github.com/lifthus/froxy/internal/froxysvr"
 )
 
-func TurnOnForwardProxy(name string) error {
+func SwitchForwardProxy(name string) error {
 	fp, ok := froxysvr.ForwardFroxyMap[name]
 	if !ok {
 		return fmt.Errorf("forward proxy <%s> not found", name)
 	}
-	fp.On = true
-	return nil
-}
-
-func TurnOffForwardProxy(name string) error {
-	fp, ok := froxysvr.ForwardFroxyMap[name]
-	if !ok {
-		return fmt.Errorf("forward proxy <%s> not found", name)
-	}
-	fp.On = false
+	fp.On = !fp.On
 	return nil
 }
 
