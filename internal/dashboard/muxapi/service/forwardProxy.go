@@ -49,12 +49,6 @@ func GetForwardProxiesOverview(w http.ResponseWriter, r *http.Request) {
 	w.Write(statsBytes)
 }
 
-type ForwardStatus struct {
-	On        bool     `json:"on"`
-	Port      string   `json:"port"`
-	Whitelist []string `json:"whitelist"`
-}
-
 func getWhitelist(m map[string]struct{}) []string {
 	alist := make([]string, 0, len(m))
 	for allowed := range m {
@@ -74,6 +68,7 @@ func GetForwardProxyInfo(name string) (*dto.ForwardProxyInfo, error) {
 	}
 	_, port, _ := net.SplitHostPort(svr.Addr)
 	return &dto.ForwardProxyInfo{
+		On:        fp.On,
 		Port:      port,
 		Whitelist: getWhitelist(fp.Whitelist),
 	}, nil
