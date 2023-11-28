@@ -7,13 +7,13 @@ import (
 )
 
 func init() {
-	HandleGET("/api/session", func(w http.ResponseWriter, r *http.Request) {
+	handle(http.MethodGet, "/api/session", func(w http.ResponseWriter, r *http.Request) {
 		service.GetSessionInfo(w, r)
 	})
-	HandlePOST("/api/session/root", func(w http.ResponseWriter, r *http.Request) {
+	handle(http.MethodPost, "/api/session/root", func(w http.ResponseWriter, r *http.Request) {
 		service.RootSignIn(w, r)
 	})
-	HandlePOST("/api/session/out", func(w http.ResponseWriter, r *http.Request) {
+	handle(http.MethodPost, "/api/session/out", func(w http.ResponseWriter, r *http.Request) {
 		service.SignOut(w, r)
 	})
 }

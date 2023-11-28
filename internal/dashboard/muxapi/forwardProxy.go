@@ -5,25 +5,21 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/lifthus/froxy/internal/dashboard/httphelper"
 	"github.com/lifthus/froxy/internal/dashboard/muxapi/service"
 )
 
 func init() {
-	HandleGET("/api/proxy/forward", func(w http.ResponseWriter, r *http.Request) {
-		cinfo := httphelper.ClientInfo(r)
-		if !cinfo.Root {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
+	// turn on specific forward proxy
+	RootHandlePOST("/api/proxy/forward/on/", func(w http.ResponseWriter, r *http.Request) {
+	})
+	// turn off specific forward proxy
+	RootHandlePOST("/api/proxy/forward/off/", func(w http.ResponseWriter, r *http.Request) {})
+	// get overview of all forward proxies
+	RootHandleGET("/api/proxy/forward", func(w http.ResponseWriter, r *http.Request) {
 		service.GetForwardProxiesOverview(w, r)
 	})
-	HandleGET("/api/proxy/forward/", func(w http.ResponseWriter, r *http.Request) {
-		cinfo := httphelper.ClientInfo(r)
-		if !cinfo.Root {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
+	// get info of specific forward proxy by name
+	RootHandleGET("/api/proxy/forward/", func(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimPrefix(r.URL.Path, "/api/proxy/forward/")
 		fpi, err := service.GetForwardProxyInfo(name)
 		if err != nil {
@@ -42,9 +38,9 @@ func init() {
 		}
 		w.Write(fpib)
 	})
-	HandlePOST("/api/proxy/forward/whitelist", func(w http.ResponseWriter, r *http.Request) {
+	// add a new whitelist entry to specific forward proxy
+	RootHandlePOST("/api/proxy/forward/whitelist", func(w http.ResponseWriter, r *http.Request) {
 		referer := r.Header.Get("Referer")
-
 		err := r.ParseForm()
 		if err != nil {
 			http.Redirect(w, r, "/error", http.StatusSeeOther)
@@ -59,7 +55,8 @@ func init() {
 		}
 		http.Redirect(w, r, referer, http.StatusSeeOther)
 	})
-	HandleDELETE("/api/proxy/forward/whitelist/", func(w http.ResponseWriter, r *http.Request) {
+	// delete a whitelist entry from specific forward proxy
+	RootHandleDELETE("/api/proxy/forward/whitelist/", func(w http.ResponseWriter, r *http.Request) {
 		nameTarget := strings.TrimPrefix(r.URL.Path, "/api/proxy/forward/whitelist/")
 		nameTargetPair := strings.Split(nameTarget, "/")
 		err := service.DeleteForwardProxyWhitelist(nameTargetPair[0], nameTargetPair[1])
