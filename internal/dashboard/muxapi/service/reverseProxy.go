@@ -32,6 +32,7 @@ func GetReverseProxiesOverview(w http.ResponseWriter, r *http.Request) {
 		reverseStats[name] = dto.ReverseProxyOverview{
 			On:   config.On,
 			Port: port,
+			Sec:  config.Sec,
 		}
 	}
 
@@ -63,6 +64,7 @@ func GetReverserProxyInfo(name string) (*dto.ReverseProxyInfo, error) {
 	return &dto.ReverseProxyInfo{
 		On:   config.On,
 		Port: port,
+		Sec:  config.Sec,
 
 		ProxyMap: pmap,
 	}, nil
