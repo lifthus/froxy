@@ -21,6 +21,7 @@ func (ff *ForwardFroxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 func ConfigForwardFroxy() *ForwardFroxy {
 	ff := &ForwardFroxy{
+		On:               true,
 		Whitelist:        make(map[string]struct{}),
 		ForwardChainInfo: false,
 	}
