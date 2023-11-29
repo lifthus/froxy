@@ -24,7 +24,7 @@ var (
 )
 
 const (
-	SESSION_EXP_TIME = time.Minute * 5
+	SESSION_EXP_TIME = time.Minute * 30
 )
 
 // for embedding in request context
