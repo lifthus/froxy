@@ -20,6 +20,11 @@ import (
 func useRoundRobinLoadBalanceHandler(ff *ReverseFroxy) *ReverseFroxy {
 	hpm := ff.HostProxyMap
 	ff.handler = http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		if !ff.On {
+			w.WriteHeader(http.StatusForbidden)
+			w.Write([]byte("reverse proxy is off"))
+			return
+		}
 		ctx := req.Context()
 		outreq := req.Clone(ctx)
 		if req.ContentLength == 0 {

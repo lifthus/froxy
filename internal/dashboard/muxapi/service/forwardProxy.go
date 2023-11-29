@@ -19,14 +19,8 @@ func SwitchForwardProxy(name string) error {
 	return nil
 }
 
-type ForwardOverview struct {
-	On           bool   `json:"on"`
-	Port         string `json:"port"`
-	WhitelistLen int    `json:"whitelistLen"`
-}
-
 func GetForwardProxiesOverview(w http.ResponseWriter, r *http.Request) {
-	forwardStats := make(map[string]ForwardOverview)
+	forwardStats := make(map[string]dto.ForwardProxyOverview)
 	for name, config := range froxysvr.ForwardFroxyMap {
 
 		svr, ok := froxysvr.SvrMap[name]
@@ -35,7 +29,7 @@ func GetForwardProxiesOverview(w http.ResponseWriter, r *http.Request) {
 		}
 		_, port, _ := net.SplitHostPort(svr.Addr)
 
-		forwardStats[name] = ForwardOverview{
+		forwardStats[name] = dto.ForwardProxyOverview{
 			On:           config.On,
 			Port:         port,
 			WhitelistLen: len(config.Whitelist),

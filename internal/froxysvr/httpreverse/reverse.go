@@ -8,6 +8,7 @@ import (
 )
 
 type ReverseFroxy struct {
+	On bool
 	// HostProxyMap maps host to basepath matcher, which maps basepath to proper ProxyTarget.
 	HostProxyMap HostProxyMap
 
@@ -53,7 +54,7 @@ func ConfigReverseProxy(rpsm map[string]map[string][]string) (*ReverseFroxy, err
 			return nil, err
 		}
 	}
-	rf := &ReverseFroxy{HostProxyMap: hostProxyMap}
+	rf := &ReverseFroxy{On: true, HostProxyMap: hostProxyMap}
 	return useRoundRobinLoadBalanceHandler(rf), nil
 }
 
