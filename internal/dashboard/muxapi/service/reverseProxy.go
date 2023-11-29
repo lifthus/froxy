@@ -21,8 +21,7 @@ func SwitchReverseProxy(name string) error {
 
 func GetReverseProxiesOverview(w http.ResponseWriter, r *http.Request) {
 	reverseStats := make(map[string]dto.ReverseProxyOverview)
-	for name := range froxysvr.ReverseFroxyMap {
-
+	for name, config := range froxysvr.ReverseFroxyMap {
 		svr, ok := froxysvr.SvrMap[name]
 		if !ok {
 			panic(fmt.Sprintf("reverse proxy <%s> http server not found from froxysvr.SvrMap", name))
@@ -30,6 +29,7 @@ func GetReverseProxiesOverview(w http.ResponseWriter, r *http.Request) {
 		_, port, _ := net.SplitHostPort(svr.Addr)
 
 		reverseStats[name] = dto.ReverseProxyOverview{
+			On:   config.On,
 			Port: port,
 		}
 	}
@@ -44,7 +44,7 @@ func GetReverseProxiesOverview(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetReverserProxyInfo(name string) (*dto.ReverseProxyInfo, error) {
-	_, ok := froxysvr.ReverseFroxyMap[name]
+	config, ok := froxysvr.ReverseFroxyMap[name]
 	if !ok {
 		return nil, nil
 	}
@@ -54,7 +54,7 @@ func GetReverserProxyInfo(name string) (*dto.ReverseProxyInfo, error) {
 	}
 	_, port, _ := net.SplitHostPort(svr.Addr)
 	return &dto.ReverseProxyInfo{
-		On:   false,
+		On:   config.On,
 		Port: port,
 	}, nil
 }
