@@ -1,6 +1,7 @@
 package muxapi
 
 import (
+	"encoding/json"
 	"net/http"
 	"strings"
 
@@ -25,6 +26,21 @@ func init() {
 	// get info of specific reverse proxy by name
 	RootHandleGET("/api/proxy/reverse/", func(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimPrefix(r.URL.Path, "/api/proxy/reverse/")
-		w.Write([]byte(name))
+		info, err := service.GetReverserProxyInfo(name)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		if info == nil {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		infob, err := json.Marshal(info)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write(infob)
 	})
 }
