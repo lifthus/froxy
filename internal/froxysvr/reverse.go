@@ -11,7 +11,7 @@ import (
 func ConfigReverseProxies(rfcs []*config.ReverseProxy) error {
 	for _, rfc := range rfcs {
 
-		rf, err := httpreverse.ConfigReverseProxy(rfc.Proxy)
+		rf, err := httpreverse.ConfigReverseProxy(rfc.Proxy, rfc.GetTLSConfig() != nil)
 		if err != nil {
 			return err
 		}

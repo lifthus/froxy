@@ -8,7 +8,8 @@ import (
 )
 
 type ReverseFroxy struct {
-	On bool
+	On  bool
+	Sec bool
 	// HostProxyMap maps host to basepath matcher, which maps basepath to proper ProxyTarget.
 	HostProxyMap HostProxyMap
 
@@ -45,7 +46,7 @@ func (pt *ProxyTarget) NextTargetURL(path string) (targetURL *url.URL) {
 	return target.JoinPath(path)
 }
 
-func ConfigReverseProxy(rpsm map[string]map[string][]string) (*ReverseFroxy, error) {
+func ConfigReverseProxy(rpsm map[string]map[string][]string, secure bool) (*ReverseFroxy, error) {
 	var err error
 	hostProxyMap := make(map[string]*pathmatch.Matcher[*ProxyTarget])
 	for host, rps := range rpsm {
@@ -54,7 +55,7 @@ func ConfigReverseProxy(rpsm map[string]map[string][]string) (*ReverseFroxy, err
 			return nil, err
 		}
 	}
-	rf := &ReverseFroxy{On: true, HostProxyMap: hostProxyMap}
+	rf := &ReverseFroxy{On: true, Sec: secure, HostProxyMap: hostProxyMap}
 	return useRoundRobinLoadBalanceHandler(rf), nil
 }
 
