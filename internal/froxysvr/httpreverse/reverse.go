@@ -10,6 +10,9 @@ import (
 type ReverseFroxy struct {
 	On  bool
 	Sec bool
+
+	HostPathTarget map[string]map[string]*ProxyTarget
+
 	// HostProxyMap maps host to basepath matcher, which maps basepath to proper ProxyTarget.
 	HostProxyMap HostProxyMap
 
@@ -48,35 +51,39 @@ func (pt *ProxyTarget) NextTargetURL(path string) (targetURL *url.URL) {
 
 func ConfigReverseProxy(rpsm map[string]map[string][]string, secure bool) (*ReverseFroxy, error) {
 	var err error
+	hostPathTarget := make(map[string]map[string]*ProxyTarget)
 	hostProxyMap := make(map[string]*pathmatch.Matcher[*ProxyTarget])
 	for host, rps := range rpsm {
-		hostProxyMap[host], err = newBasepathMatcher(rps)
+		hostProxyMap[host], hostPathTarget[host], err = newBasepathMatcherAndPathTarget(rps)
 		if err != nil {
 			return nil, err
 		}
 	}
-	rf := &ReverseFroxy{On: true, Sec: secure, HostProxyMap: hostProxyMap}
+	rf := &ReverseFroxy{On: true, Sec: secure, HostPathTarget: hostPathTarget, HostProxyMap: hostProxyMap}
 	return useRoundRobinLoadBalanceHandler(rf), nil
 }
 
-func newBasepathMatcher(pathTargets map[string][]string) (*pathmatch.Matcher[*ProxyTarget], error) {
+func newBasepathMatcherAndPathTarget(pathTargets map[string][]string) (*pathmatch.Matcher[*ProxyTarget], map[string]*ProxyTarget, error) {
+	pathTarget := make(map[string]*ProxyTarget)
 	pathProxyTargetMap := make(map[string]*ProxyTarget)
 	for path, targets := range pathTargets {
 		urls, err := stringsToURLs(targets)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		pathProxyTargetMap[path] = &ProxyTarget{
+		pt := &ProxyTarget{
 			Len:     len(targets),
 			Cnt:     0,
 			Targets: urls,
 		}
+		pathTarget[path] = pt
+		pathProxyTargetMap[path] = pt
 	}
 	matcher, err := pathmatch.NewPathMatcher[*ProxyTarget](pathProxyTargetMap)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return matcher, nil
+	return matcher, pathTarget, nil
 }
 
 func stringsToURLs(strurls []string) ([]*url.URL, error) {
