@@ -22,3 +22,12 @@ reverse:
           - http://localhost:5173
         "/api":
           - https://localhost:8542/api
+  - name: example-reverse-2
+    port: 8545
+    proxy:
+      "127.0.0.1":
+        "/":
+          - http://localhost:5173
+          - http://localhost:5173
+        "/api":
+          - https://localhost:8542/api
