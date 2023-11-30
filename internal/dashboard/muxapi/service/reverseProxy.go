@@ -55,7 +55,7 @@ func GetReverserProxyInfo(name string) (*dto.ReverseProxyInfo, error) {
 		panic(fmt.Sprintf("reverse proxy <%s> http server not found from froxysvr.SvrMap", name))
 	}
 
-	pmap, err := buildProxyMapFromHostPathTarget(config.HostPathTarget)
+	pmap, err := buildProxyMapFromHostPathTarget(config.On, config.HostPathTarget)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func GetReverserProxyInfo(name string) (*dto.ReverseProxyInfo, error) {
 	}, nil
 }
 
-func buildProxyMapFromHostPathTarget(hpt map[string]map[string]*httpreverse.ProxyTarget) (map[string]map[string][]dto.ProxyTarget, error) {
+func buildProxyMapFromHostPathTarget(proxyOn bool, hpt map[string]map[string]*httpreverse.ProxyTarget) (map[string]map[string][]dto.ProxyTarget, error) {
 	pmap := make(map[string]map[string][]dto.ProxyTarget)
 
 	for host, pt := range hpt {
@@ -81,7 +81,7 @@ func buildProxyMapFromHostPathTarget(hpt map[string]map[string]*httpreverse.Prox
 			pathTarget[path] = targets
 			for i, url := range target.Targets {
 				targets[i] = dto.ProxyTarget{
-					On:  true,
+					On:  proxyOn,
 					URL: url.String(),
 				}
 			}
