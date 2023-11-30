@@ -15,7 +15,13 @@ func usePlainForwardProxyHandler(ff *ForwardFroxy) *ForwardFroxy {
 		// log.Println(req.RemoteAddr, "\t", req.Method, "\t", req.URL, "\t Host:", req.Host)
 		// log.Println("\t\t", req.Header)
 
-		if !isAllowed(req, ff.Allowed) {
+		if !ff.On {
+			w.WriteHeader(http.StatusForbidden)
+			w.Write([]byte("forward proxy is off"))
+			return
+		}
+
+		if !isAllowed(req, ff.Whitelist) {
 			w.Header().Set("Proxy-Authenticate", `Allowed realm="froxy dashboard"`)
 			w.WriteHeader(http.StatusProxyAuthRequired)
 			return
@@ -58,15 +64,15 @@ func usePlainForwardProxyHandler(ff *ForwardFroxy) *ForwardFroxy {
 	return ff
 }
 
-func isAllowed(req *http.Request, allowed map[string]struct{}) (ok bool) {
-	if _, ok = allowed["*"]; ok {
+func isAllowed(req *http.Request, whitelist map[string]struct{}) (ok bool) {
+	if _, ok = whitelist["*"]; ok {
 		return true
 	}
 	addr, _, err := net.SplitHostPort(req.RemoteAddr)
 	if err != nil {
 		return false
 	}
-	_, ok = allowed[addr]
+	_, ok = whitelist[addr]
 	return ok
 }
 

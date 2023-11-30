@@ -5,7 +5,8 @@ import (
 )
 
 type ForwardFroxy struct {
-	Allowed          map[string]struct{}
+	On               bool
+	Whitelist        map[string]struct{}
 	ForwardChainInfo bool
 	handler          http.Handler
 }
@@ -20,16 +21,9 @@ func (ff *ForwardFroxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 func ConfigForwardFroxy() *ForwardFroxy {
 	ff := &ForwardFroxy{
-		Allowed:          make(map[string]struct{}),
+		On:               true,
+		Whitelist:        make(map[string]struct{}),
 		ForwardChainInfo: false,
 	}
 	return usePlainForwardProxyHandler(ff)
-}
-
-func strSliceToMap(ss []string) map[string]struct{} {
-	m := make(map[string]struct{})
-	for _, s := range ss {
-		m[s] = struct{}{}
-	}
-	return m
 }

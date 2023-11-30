@@ -3,6 +3,8 @@ package muxapi
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/lifthus/froxy/internal/dashboard/session"
 )
 
 func NewAPIMux() *http.ServeMux {
@@ -32,16 +34,31 @@ var (
 	pathMethodHandler = make(map[string]map[string]http.HandlerFunc, 0)
 )
 
-func HandleGET(path string, handler http.HandlerFunc) {
-	handle(http.MethodGet, path, handler)
+func RootHandleGET(path string, handler http.HandlerFunc) {
+	handle(http.MethodGet, path, rootGuard(handler))
 }
 
-func HandlePOST(path string, handler http.HandlerFunc) {
-	handle(http.MethodPost, path, handler)
+func RootHandlePOST(path string, handler http.HandlerFunc) {
+	handle(http.MethodPost, path, rootGuard(handler))
 }
 
-func HandleDELETE(path string, handler http.HandlerFunc) {
-	handle(http.MethodDelete, path, handler)
+func RootHandleDELETE(path string, handler http.HandlerFunc) {
+	handle(http.MethodDelete, path, rootGuard(handler))
+}
+
+func rootGuard(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		cinfo, ok := r.Context().Value(session.Cinfokey).(*session.ClientInfo)
+		if !ok {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		if !cinfo.Root {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+		handler(w, r)
+	}
 }
 
 func handle(method string, path string, handler http.HandlerFunc) {
