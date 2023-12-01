@@ -20,7 +20,7 @@ func main() {
 		log.Fatalf("inputting credentials failed: %v", err)
 	}
 	dashboard.BootDashboard(fconfigs.Dashboard)
-	log.Println("dashboard booted")
+	log.Printf("dashboard booted on port:%s", fconfigs.Dashboard.Port)
 
 	froxysvr.ConfigForwardProxyServers(fconfigs.ForwardProxyList)
 	froxysvr.ConfigReverseProxies(fconfigs.ReverseProxyList)
